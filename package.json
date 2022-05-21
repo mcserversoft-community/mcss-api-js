@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "npx swc ./src -d dist",
     "prepare": "npm run build"
   },
   "author": "PouletteMC",
   "license": "MIT",
   "devDependencies": {
+    "@swc/cli": "^0.1.57",
+    "@swc/core": "^1.2.187",
     "typescript": "^4.6.4"
   }
 }
