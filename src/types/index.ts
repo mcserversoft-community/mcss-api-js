@@ -11,6 +11,12 @@ export interface McssParamsToken {
   token: string;
 }
 
+export interface Response {
+  success: boolean;
+  status: 200 | 400 | 401 | 500;
+  data: any;
+}
+
 
 export * from './responses';
 export * from './requests';
