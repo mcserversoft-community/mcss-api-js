@@ -1,4 +1,4 @@
-import { McssParamsToken } from ".";
+import { McssParamsToken } from "types";
 
 export interface McssConsoleRequest {
     Mcss: McssParamsToken;

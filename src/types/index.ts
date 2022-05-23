@@ -14,7 +14,7 @@ export interface McssParamsToken {
 export interface Response {
   success: boolean;
   status: 200 | 400 | 401 | 500;
-  data: any;
+  data: { error: string } | any;
 }
 
 

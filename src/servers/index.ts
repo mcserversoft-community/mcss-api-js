@@ -1,1 +1,1 @@
-export const servers = true
+export *  from './minimal';

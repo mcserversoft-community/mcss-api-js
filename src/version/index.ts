@@ -1,5 +1,5 @@
 import type { McssParamsToken, Response } from 'types';
-import { axiosSetup } from '..';
+import { axiosSetup } from 'src'
 const instance = axiosSetup();
 
 export default async function getMcssVersion(data:McssParamsToken ): Promise<Response> {
@@ -12,6 +12,6 @@ export default async function getMcssVersion(data:McssParamsToken ): Promise<Res
         if(version.status === 401) return { success: false, status: 401, data: { error: 'Invalid token' }};
         return { success: false, status: 400, data: { error: 'Unknown error' }};
     } catch (error) {
-        return { success: false, status: 500, data: { error: 'Unknown error' }};
+        return { success: false, status: 500, data: { error: error.message }};
     }
 }
