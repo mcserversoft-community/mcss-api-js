@@ -1,6 +1,6 @@
 import { axiosSetup } from ".";
 const instance = axiosSetup()
-
+let refreshed: boolean
 
 export default class MCSS {
     username: string;
@@ -29,8 +29,12 @@ export default class MCSS {
         const version = await instance.get(`https://${this.ip}:${this.port}/api/version`, headers)
         if(version.status === 200 && version.data.McssApiVersion >= '0.1.0') return { success: true, code: 200, data: version.data }
         if(version.status === 200 && version.data.McssApiVersion < '0.1.0') return { success: false, code: 406, data: { error: 'Unsupported API version' } }
-        if(version.status === 401) //TODO: Add a function that refreshed the token - if that fails, send the error
-        return false
+        if(version.status === 401 && !refreshed) {
+            await this.getToken()
+            refreshed = true
+            return await this.getVersion()
+        }
+        if(version.status === 401 && refreshed) refreshed = false; return { success: false, code: 401, data: { error: 'Invalid credentials' } }
     }
 
     public async getServers() {
