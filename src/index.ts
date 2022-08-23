@@ -6,6 +6,14 @@ enum getServerCountFilter { None = 0, Online = 1, Offline = 2, ByServerType = 3 
 enum executeServerActionFilter { InvalidOrEmpty = 0, Stop = 1, Start = 2, Kill = 3, Restart = 4 }
 enum getTaskListFilter { None = 0, FixedTime = 1, Interval = 2, Timeless = 3 }
 
+interface AppResponse {
+    status: number,
+    data?: any,
+    error?: {
+        message: string,
+    } 
+}
+
 const instance = axios.create({
     httpsAgent: new Agent({rejectUnauthorized: false}),
     validateStatus: () => true
@@ -24,18 +32,32 @@ export default class MCSS {
         this.headers = { headers: { ApiKey: this.apiKey } }
     }
 
-    public async getServers( filter?: getServersFilter): Promise<{status:number, data?:any, error?:{message:string}}> {
+    private generateResponse(code: number, data?: any): AppResponse {
+        switch(code) {
+            case 200:
+                return { status: 200, data };
+            case 401:
+                return { status: 401, error: { message: 'Incorrect API key' } }
+            case 404:
+                return { status: 404, error: { message: 'Server not found' } }
+            default: 
+                return { status: code, error: { message: 'An unexpected error occured' } }
+        }
+    }
+
+    public async getServers( filter?: getServersFilter): Promise<AppResponse> {
         let response: AxiosResponse<any, any>
         const url = `https://${this.ip}:${this.port}/api/v1/servers`
 
         if (filter) response = await instance.get(url, { params: { filter }, headers: { ApiKey: this.apiKey } })
         else response = await instance.get(url, this.headers)
-        if( response.status === 200 ) return { status: response.status, data: response.data }
-        if( response.status === 401 ) return { status: response.status, error: { message: 'Incorrect Apikey' } }
-        return { status: response.status, error: { message: 'A unexpected error occured' } }
+        return this.generateResponse(response.status, response.data!)
+        // if( response.status === 200 ) return { status: response.status, data: response.data }
+        // if( response.status === 401 ) return { status: response.status, error: { message: 'Incorrect Apikey' } }
+        // return { status: response.status, error: { message: 'A unexpected error occured' } }
     }
 
-    public async getServerCount( filter?: getServerCountFilter): Promise<{status:number, data?:any, error?:{message:string}}> {
+    public async getServerCount( filter?: getServerCountFilter): Promise<AppResponse> {
         let response: AxiosResponse<any, any>
         const url = `https://${this.ip}:${this.port}/api/v1/servers/count`
 
@@ -46,7 +68,7 @@ export default class MCSS {
         return { status: response.status, error: { message: 'A unexpected error occured' } }
     }
 
-    public async getServerDetails( serverGuid: string, filter?: getServersFilter ):Promise<{status:number, data?:any, error?:{message:string}}> {
+    public async getServerDetails( serverGuid: string, filter?: getServersFilter ): Promise<AppResponse> {
         let response: AxiosResponse<any, any>
         const url = `https://${this.ip}:${this.port}/api/v1/servers/${serverGuid}`
 
@@ -59,7 +81,7 @@ export default class MCSS {
         return { status: response.status, error: { message: 'A unexpected error occured' } }
     }
 
-    public async getServerStats( serverGuid: string ):Promise<{status:number, data?:any, error?:{message:string}}> {
+    public async getServerStats( serverGuid: string ): Promise<AppResponse> {
         let response: AxiosResponse<any, any>
         const url = `https://${this.ip}:${this.port}/api/v1/servers/${serverGuid}/stats`
 
@@ -70,7 +92,7 @@ export default class MCSS {
         return { status: response.status, error: { message: 'A unexpected error occured' } }
     }
 
-    public async getServerIcon( serverGuid: string ):Promise<{status:number, data?:any, error?:{message:string}}> {
+    public async getServerIcon( serverGuid: string ): Promise<AppResponse> {
         let response: AxiosResponse<any, any>
         const url = `https://${this.ip}:${this.port}/api/v1/servers/${serverGuid}/icon`
 
@@ -81,7 +103,7 @@ export default class MCSS {
         return { status: response.status, error: { message: 'A unexpected error occured' } }
     }
 
-    public async executeServerAction( serverGuid: string, action: executeServerActionFilter ):Promise<{status:number, data?:any, error?:{message:string}}> {
+    public async executeServerAction( serverGuid: string, action: executeServerActionFilter ): Promise<AppResponse> {
         let response: AxiosResponse<any, any>
         const url = `https://${this.ip}:${this.port}/api/v1/servers/${serverGuid}/execute/action`
 
@@ -92,7 +114,7 @@ export default class MCSS {
         return { status: response.status, error: { message: 'A unexpected error occured' } }
     }
 
-    public async executeServerCommand( serverGuid: string, command: string ):Promise<{status:number, data?:any, error?:{message:string}}> {
+    public async executeServerCommand( serverGuid: string, command: string ): Promise<AppResponse> {
         let response: AxiosResponse<any, any>
         const url = `https://${this.ip}:${this.port}/api/v1/servers/${serverGuid}/execute/command`
 
@@ -103,7 +125,7 @@ export default class MCSS {
         return { status: response.status, error: { message: 'A unexpected error occured' } }
     }
 
-    public async executeServerCommands( serverGuid: string, commands: string[] ): Promise<{status:number, data?:any, error?:{message:string}}> {
+    public async executeServerCommands( serverGuid: string, commands: string[] ): Promise<AppResponse> {
         let response: AxiosResponse<any, any>
         const url = `https://${this.ip}:${this.port}/api/v1/servers/${serverGuid}/execute/commands`
 
