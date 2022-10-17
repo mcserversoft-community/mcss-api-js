@@ -53,6 +53,7 @@ module.exports = /** @class */ (function () {
         this.port = _port;
         this.apiKey = _key;
         this.server = new Server(this);
+        this.backups = new Backups(this);
     }
     MCSS.prototype.getURL = function () {
         return "http://".concat(this.ip, ":").concat(this.port, "/api/v1/");
@@ -68,6 +69,19 @@ module.exports = /** @class */ (function () {
             default:
                 return { status: code, error: { message: 'An unexpected error occured' } };
         }
+    };
+    MCSS.prototype.getVersion = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.instance.get(this.getURL())];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, this.generateResponse(response.status, response.data)];
+                }
+            });
+        });
     };
     MCSS.prototype.getServers = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -100,6 +114,7 @@ module.exports = /** @class */ (function () {
 var Server = /** @class */ (function () {
     function Server(client) {
         this.client = client;
+        this.scheduler = new Scheduler(this);
     }
     Server.prototype.getURL = function () {
         return "http://".concat(this.client.ip, ":").concat(this.client.port, "/api/v1/servers/");
@@ -112,7 +127,6 @@ var Server = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.client.instance.get(this.getURL() + _id)];
                     case 1:
                         response = _a.sent();
-                        this.server = _id;
                         return [2 /*return*/, this.client.generateResponse(response.status, response.data)];
                 }
             });
@@ -244,3 +258,63 @@ var ServerEditor = /** @class */ (function () {
     return ServerEditor;
 }());
 module.exports.ServerEditor = ServerEditor;
+var Scheduler = /** @class */ (function () {
+    function Scheduler(server) {
+        this.client = server.client;
+    }
+    Scheduler.prototype.getURL = function (_id) {
+        return "http://".concat(this.client.ip, ":").concat(this.client.port, "/api/v1/servers/").concat(_id, "/scheduler");
+    };
+    Scheduler.prototype.getAll = function (_id, server) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.instance.get(this.getURL(_id) + "/tasks")];
+                    case 1:
+                        response = _a.sent();
+                        console.log(response);
+                        return [2 /*return*/, this.client.generateResponse(response.status, response.data)];
+                }
+            });
+        });
+    };
+    return Scheduler;
+}());
+var ServerTask = /** @class */ (function () {
+    function ServerTask() {
+        this.name;
+        this.enabled;
+        this.playerRequirement;
+        this.timing;
+        this.job;
+    }
+    ServerTask.prototype.setName = function (name) {
+        this.name = name;
+        return this;
+    };
+    ServerTask.prototype.setEnabled = function (condition) {
+        this.enabled = condition;
+        return this;
+    };
+    ServerTask.prototype.setPlayerRequirement = function (value) {
+        this.playerRequirement = value;
+        return this;
+    };
+    ServerTask.prototype.setTiming = function (interval, repeat) {
+        this.timing = { repeat: repeat, interval: interval };
+        return this;
+    };
+    ServerTask.prototype.setJobs = function (commands) {
+        this.job = { commands: commands };
+        return this;
+    };
+    return ServerTask;
+}());
+module.exports.ServerTask = ServerTask;
+var Backups = /** @class */ (function () {
+    function Backups(client) {
+        this.client = client;
+    }
+    return Backups;
+}());

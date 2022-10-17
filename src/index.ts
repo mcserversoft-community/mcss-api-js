@@ -15,6 +15,7 @@ module.exports = class MCSS {
     apiKey: string;
     instance: any;
     server: Server;
+    backups: Backups;
     constructor(_ip: string, _port: string|number, _key: string) {
 
         if(!_ip || !_port || !_key) throw new Error("Must Provide a valid Info");
@@ -32,6 +33,7 @@ module.exports = class MCSS {
         this.apiKey = _key;
 
         this.server = new Server(this);
+        this.backups = new Backups(this);
     }
     private getURL(): string {
         return `http://${this.ip}:${this.port}/api/v1/`
@@ -48,6 +50,10 @@ module.exports = class MCSS {
                 return { status: code, error: { message: 'An unexpected error occured' } }
         }
     }
+    public async getVersion(): Promise<AppResponse> {
+        let response = await this.instance.get(this.getURL());
+       return this.generateResponse(response.status, response.data);
+    }
     public async getServers(): Promise<AppResponse> {
         let response = await this.instance.get(this.getURL() + "servers");
        return this.generateResponse(response.status, response.data);
@@ -60,28 +66,27 @@ module.exports = class MCSS {
 
 class Server {
     client: any;
-    previous: any;
-    server: any;
+    scheduler: Scheduler;
     constructor(client) {
         this.client = client;
+        this.scheduler = new Scheduler(this);
     }
     private getURL(): string {
         return `http://${this.client.ip}:${this.client.port}/api/v1/servers/`
     }
-    public async get(_id) {
+    public async get(_id): Promise<AppResponse> {
         let response = await this.client.instance.get(this.getURL() + _id);
-        this.server = _id;
         return this.client.generateResponse(response.status, response.data);
     }
-    public async getStats(_id) {
+    public async getStats(_id): Promise<AppResponse> {
         let response = await this.client.instance.get(this.getURL() + _id + "/stats");
         return this.client.generateResponse(response.status, response.data);
     }
-    public async getIcon(_id) {
+    public async getIcon(_id): Promise<AppResponse> {
         let response = await this.client.instance.get(this.getURL() + _id + "/icon");
         return this.client.generateResponse(response.status, response.data);
     }
-    public async edit(_id: string, server: ServerEditor) {
+    public async edit(_id: string, server: ServerEditor): Promise<AppResponse> {
         let response = await this.client.instance.put(this.getURL() + _id, server);
         return this.client.generateResponse(response.status, response.data);
     }
@@ -148,3 +153,62 @@ class ServerEditor {
     }
 }
 module.exports.ServerEditor = ServerEditor;
+
+
+class Scheduler {
+    client: any;
+    constructor(server) {
+        this.client = server.client;
+    }
+    private getURL(_id): string {
+        return `http://${this.client.ip}:${this.client.port}/api/v1/servers/${_id}/scheduler`
+    }
+    public async getAll(_id: string): Promise<AppResponse> {
+        let response = await this.client.instance.get(this.getURL(_id) + "/tasks");
+        console.log(response)
+        return this.client.generateResponse(response.status, response.data);
+    }
+}
+
+class ServerTask {
+    name: string;
+    enabled: boolean;
+    playerRequirement: number;
+    timing: object;
+    job: object;
+    constructor() {
+        this.name;
+        this.enabled;
+        this.playerRequirement;
+        this.timing;
+        this.job;
+    }
+    setName(name: string) {
+        this.name = name;
+        return this;
+    }
+    setEnabled(condition: boolean) {
+        this.enabled = condition;
+        return this;
+    }
+    setPlayerRequirement(value: number) {
+        this.playerRequirement = value;
+        return this;
+    }
+    setTiming(interval: number, repeat: boolean) {
+        this.timing = { repeat: repeat, interval: interval};
+        return this;
+    }
+    setJobs(commands: object) {
+        this.job = { commands };
+        return this;
+    }
+}
+module.exports.ServerTask = ServerTask;
+
+class Backups {
+    client: any;
+    constructor(client) {
+        this.client = client;
+    }
+}
