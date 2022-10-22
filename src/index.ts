@@ -15,7 +15,6 @@ module.exports = class MCSS {
     apiKey: string;
     instance: any;
     server: Server;
-    backups: Backups;
     constructor(_ip: string, _port: string|number, _key: string) {
 
         if(!_ip || !_port || !_key) throw new Error("Must Provide a valid Info");
@@ -33,7 +32,6 @@ module.exports = class MCSS {
         this.apiKey = _key;
 
         this.server = new Server(this);
-        this.backups = new Backups(this);
     }
     private getURL(): string {
         return `http://${this.ip}:${this.port}/api/v1/`
@@ -42,6 +40,8 @@ module.exports = class MCSS {
         switch(code) {
             case 200:
                 return { status: 200, data };
+            case 201:
+                return { status: 201, data };
             case 401:
                 return { status: 401, error: { message: 'Incorrect API key' } }
             case 404:
@@ -66,13 +66,22 @@ module.exports = class MCSS {
 
 class Server {
     client: any;
+    server: string;
     scheduler: Scheduler;
     constructor(client) {
         this.client = client;
-        this.scheduler = new Scheduler(this);
     }
     private getURL(): string {
         return `http://${this.client.ip}:${this.client.port}/api/v1/servers/`
+    }
+    public fetch(_id) {
+        this.server = _id;
+        this.scheduler = new Scheduler(this.client, _id);
+        return this;
+    }
+    public async getTasks() {
+        let response = await this.client.instance.get(this.getURL() + `${this.server}/scheduler/tasks`);
+        return this.client.generateResponse(response.status, response.data);
     }
     public async get(_id): Promise<AppResponse> {
         let response = await this.client.instance.get(this.getURL() + _id);
@@ -157,15 +166,43 @@ module.exports.ServerEditor = ServerEditor;
 
 class Scheduler {
     client: any;
-    constructor(server) {
-        this.client = server.client;
+    server: any;
+    constructor(client, args) {
+        this.client = client;
+        this.server = args;
     }
     private getURL(_id): string {
         return `http://${this.client.ip}:${this.client.port}/api/v1/servers/${_id}/scheduler`
     }
-    public async getAll(_id: string): Promise<AppResponse> {
-        let response = await this.client.instance.get(this.getURL(_id) + "/tasks");
-        console.log(response)
+    public async create(task: ServerTask) {
+        if(!task.name || !task.timing || !task.job) throw new Error("You are missing required Arguments for creating a task.");
+        let response = await this.client.instance.request({
+            method: 'POST',
+            url: this.getURL(this.server) + "/tasks",
+            data: JSON.stringify(task)
+        });
+        return this.client.generateResponse(response.status, response.data);
+    }
+    public async edit(_id: string, task: ServerTask) {
+        if(!task.name || !task.timing || !task.job) throw new Error("You are missing required Arguments for creating a task.")
+        await this.client.instance.request({
+            method: 'PUT',
+            url: this.getURL(this.server) + "/tasks/" + _id,
+            data: JSON.stringify(task)
+        });
+    }
+    public async delete(_id: string) {
+        await this.client.instance.delete(this.getURL(this.server) + "/tasks/" + _id);
+    }
+    public async run(_id: string) {
+        await this.client.instance.post(this.getURL(this.server) + "/tasks/" + _id);
+    }
+    public async get(_id: string): Promise<AppResponse> {
+        let response = await this.client.instance.get(this.getURL(this.server) + "/tasks/" + _id);
+        return this.client.generateResponse(response.status, response.data);
+    }
+    public async details(): Promise<AppResponse> {
+        let response = await this.client.instance.get(this.getURL(this.server));
         return this.client.generateResponse(response.status, response.data);
     }
 }
@@ -206,9 +243,11 @@ class ServerTask {
 }
 module.exports.ServerTask = ServerTask;
 
+/*
 class Backups {
     client: any;
     constructor(client) {
         this.client = client;
     }
 }
+*/

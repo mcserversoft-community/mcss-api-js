@@ -53,7 +53,6 @@ module.exports = /** @class */ (function () {
         this.port = _port;
         this.apiKey = _key;
         this.server = new Server(this);
-        this.backups = new Backups(this);
     }
     MCSS.prototype.getURL = function () {
         return "http://".concat(this.ip, ":").concat(this.port, "/api/v1/");
@@ -62,6 +61,8 @@ module.exports = /** @class */ (function () {
         switch (code) {
             case 200:
                 return { status: 200, data: data };
+            case 201:
+                return { status: 201, data: data };
             case 401:
                 return { status: 401, error: { message: 'Incorrect API key' } };
             case 404:
@@ -114,10 +115,27 @@ module.exports = /** @class */ (function () {
 var Server = /** @class */ (function () {
     function Server(client) {
         this.client = client;
-        this.scheduler = new Scheduler(this);
     }
     Server.prototype.getURL = function () {
         return "http://".concat(this.client.ip, ":").concat(this.client.port, "/api/v1/servers/");
+    };
+    Server.prototype.fetch = function (_id) {
+        this.server = _id;
+        this.scheduler = new Scheduler(this.client, _id);
+        return this;
+    };
+    Server.prototype.getTasks = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.instance.get(this.getURL() + "".concat(this.server, "/scheduler/tasks"))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, this.client.generateResponse(response.status, response.data)];
+                }
+            });
+        });
     };
     Server.prototype.get = function (_id) {
         return __awaiter(this, void 0, void 0, function () {
@@ -259,21 +277,97 @@ var ServerEditor = /** @class */ (function () {
 }());
 module.exports.ServerEditor = ServerEditor;
 var Scheduler = /** @class */ (function () {
-    function Scheduler(server) {
-        this.client = server.client;
+    function Scheduler(client, args) {
+        this.client = client;
+        this.server = args;
     }
     Scheduler.prototype.getURL = function (_id) {
         return "http://".concat(this.client.ip, ":").concat(this.client.port, "/api/v1/servers/").concat(_id, "/scheduler");
     };
-    Scheduler.prototype.getAll = function (_id, server) {
+    Scheduler.prototype.create = function (task) {
         return __awaiter(this, void 0, void 0, function () {
             var response;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.client.instance.get(this.getURL(_id) + "/tasks")];
+                    case 0:
+                        if (!task.name || !task.timing || !task.job)
+                            throw new Error("You are missing required Arguments for creating a task.");
+                        return [4 /*yield*/, this.client.instance.request({
+                                method: 'POST',
+                                url: this.getURL(this.server) + "/tasks",
+                                data: JSON.stringify(task)
+                            })];
                     case 1:
                         response = _a.sent();
-                        console.log(response);
+                        return [2 /*return*/, this.client.generateResponse(response.status, response.data)];
+                }
+            });
+        });
+    };
+    Scheduler.prototype.edit = function (_id, task) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!task.name || !task.timing || !task.job)
+                            throw new Error("You are missing required Arguments for creating a task.");
+                        return [4 /*yield*/, this.client.instance.request({
+                                method: 'PUT',
+                                url: this.getURL(this.server) + "/tasks/" + _id,
+                                data: JSON.stringify(task)
+                            })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Scheduler.prototype["delete"] = function (_id) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.instance["delete"](this.getURL(this.server) + "/tasks/" + _id)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Scheduler.prototype.run = function (_id) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.instance.post(this.getURL(this.server) + "/tasks/" + _id)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Scheduler.prototype.get = function (_id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.instance.get(this.getURL(this.server) + "/tasks/" + _id)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, this.client.generateResponse(response.status, response.data)];
+                }
+            });
+        });
+    };
+    Scheduler.prototype.details = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.instance.get(this.getURL(this.server))];
+                    case 1:
+                        response = _a.sent();
                         return [2 /*return*/, this.client.generateResponse(response.status, response.data)];
                 }
             });
@@ -312,9 +406,11 @@ var ServerTask = /** @class */ (function () {
     return ServerTask;
 }());
 module.exports.ServerTask = ServerTask;
-var Backups = /** @class */ (function () {
-    function Backups(client) {
+/*
+class Backups {
+    client: any;
+    constructor(client) {
         this.client = client;
     }
-    return Backups;
-}());
+}
+*/ 
