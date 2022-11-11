@@ -1,52 +1,113 @@
-import ServerEditor from "./ServerEditor";
-import MCSS from "./MCSS";
+import MCSS from './MCSS'
+import { Server as ServerType } from './types'
+import { AxiosInstance } from 'axios'
 
-export default class Server extends MCSS {
-    private client: MCSS;
-    previous: any;
-    server: any;
+enum executePowerActionFilter { 'stop' = 1, 'start' = 2, 'kill' = 3, 'restart' = 4 }
+type PowerActions = 'stop' | 'start' | 'kill' | 'restart'
+
+export class Server  {
+    private guid: string
+    private status: number
+    private name: string
+    private description: string
+    private pathToFolder: string
+    private folderName: string
+    private creationDate: string
+    private isSetToAutoStart: boolean
+    private forceSaveOnStop: boolean
+    private keepOnline: number
+    private javaAllocatedMemory: number
+    private javaStartupLine: string
+    private hostUrl: string
+    private instance: AxiosInstance
+
+    constructor(host: MCSS, server: ServerType) {
+        this.hostUrl = host.getUrl()
+        this.instance = host.getInstance()
+        this.guid = server.guid
+        this.status = server.status
+        this.name = server.name
+        this.description = server.description
+        this.pathToFolder = server.pathToFolder
+        this.folderName = server.folderName
+        this.creationDate = server.creationDate
+        this.isSetToAutoStart = server.isSetToAutoStart
+        this.forceSaveOnStop = server.forceSaveOnStop
+        this.keepOnline = server.keepOnline
+        this.javaAllocatedMemory = server.javaAllocatedMemory
+        this.javaStartupLine = server.javaStartupLine
+    }
     
-    public async get(id: string) {
-        let response = await this.instance.get(this.url + id);
-        this.server = id;
-        return this.generateResponse(response.status, response.data);
+    public getGuid(): string {
+        return this.guid
     }
-    public async getStats(id: string) {
-        let response = await this.instance.get(this.url + id + "/stats");
-        return this.generateResponse(response.status, response.data);
+
+    public getStatus(): number {
+        return this.status
     }
-    public async getIcon(id: string) {
-        let response = await this.instance.get(this.url + id + "/icon");
-        return this.generateResponse(response.status, response.data);
+
+    public getName(): string {
+        return this.name
     }
-    public async edit(id: string, server: ServerEditor) {
-        let response = await this.instance.put(this.url + id, server);
-        return this.generateResponse(response.status, response.data);
+
+    public getDescription(): string {
+        return this.description
     }
-    public async execute(id: string, ...action: any): Promise<void> {
-        if(action.length == 1) {
-            switch(action[0]) {
-                case 0:
-                    await this.instance.post(this.url + id + "/execute/action", { action: 0 });
-                    break;
-                case 1:
-                    await this.instance.post(this.url + id + "/execute/action", { action: 1 });
-                    break;
-                case 2:
-                    await this.instance.post(this.url + id + "/execute/action", { action: 2 });
-                    break;
-                case 3:
-                    await this.instance.post(this.url + id + "/execute/action", { action: 3 });
-                    break;
-                case 4:
-                    await this.instance.post(this.url + id + "/execute/action", { action: 4 });
-                    break;
-                default: 
-                    await this.instance.post(this.url + id + "/execute/command", { command: action[0] });
-                    break;
-            }
-        } else {
-            await this.instance.post(this.url + id + "/execute/commands", { commands: action });
-        }
+
+    public getPathToFolder(): string {
+        return this.pathToFolder
+    }
+
+    public getFolderName(): string {
+        return this.folderName
+    }
+
+    public getCreationDate(): string {
+        return this.creationDate
+    }
+
+    public getIsSetToAutoStart(): boolean {
+        return this.isSetToAutoStart
+    }
+
+    public getForceSaveOnStop(): boolean {
+        return this.forceSaveOnStop
+    }
+
+    public getKeepOnline(): number {
+        return this.keepOnline
+    }
+
+    public getJavaAllocatedMemory(): number {
+        return this.javaAllocatedMemory
+    }
+
+    public getJavaStartupLine(): string {
+        return this.javaStartupLine
+    }
+
+    // public setForceSaveOnStop(value: boolean): void {
+    //     this.forceSaveOnStop = value;
+    // }
+
+    // public setKeepOnline(value: number): void {
+    //     this.keepOnline = value;
+    // }
+
+    // public setJavaAllocatedMemory(value: number): void {
+    //     this.javaAllocatedMemory = value;
+    // }
+
+    // public setJavaStartupLine(value: string): void {
+    //     this.javaStartupLine = value;
+    // }
+
+    public async executePowerAction(action: PowerActions): Promise<number> {
+        const actionValue = executePowerActionFilter[action]
+        const request = await this.instance.post( `${this.hostUrl}servers/${this.guid}/execute/action`, { 'action': actionValue })
+        return request.status
     }
 }
+
+
+export default Server

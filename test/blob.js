@@ -1,4 +1,4 @@
-const mcss = require('../src/index.js');
+const mcss = require('../dist/index.js');
 
 const client = new mcss("192.168.1.198", 8050, "DtY6HWI2csbnQ3JjeXaBtT5eudKVGDQxHzCPJ1aOznzo70OwgiRsXXv0VaDZQoUmGwyPPjbN5OFKPwainjKgU7xsSH9rfuKsFHo5u6SSqegwARHQzQQIygDp");
 

@@ -4,7 +4,7 @@
   "description": "Simple package to interact with MCSS' API",
   "main": "index.js",
   "scripts": {
-    "build": "pnpm exec swc ./src/index.ts -d dist"
+    "build": "pnpm exec swc ./src -d dist"
   },
   "author": "PouletteMC",
   "license": "MIT",
@@ -13,6 +13,9 @@
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.3.14",
     "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "eslint": "^8.27.0",
     "typescript": "^4.6.4"
   },
   "dependencies": {
