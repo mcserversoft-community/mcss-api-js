@@ -4,7 +4,8 @@
   "description": "Simple package to interact with MCSS' API",
   "main": "index.js",
   "scripts": {
-    "build": "pnpm exec swc ./src/index.ts -d dist"
+    "build": "pnpm exec swc ./src/index.ts -d dist",
+    "test": "pnpm dlx playwright test"
   },
   "author": "PouletteMC",
   "license": "MIT",
