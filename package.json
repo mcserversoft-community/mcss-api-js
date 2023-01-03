@@ -1,6 +1,6 @@
 {
   "name": "mcss-api",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "description": "Simple package to interact with MCSS' API",
   "main": "index.js",
   "scripts": {
