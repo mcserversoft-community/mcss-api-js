@@ -6,6 +6,8 @@
   "module": "dist/csm/index.js",
   "scripts": {
     "build": "pnpm exec swc ./src/index.ts -d dist",
+    "build:esm": "tsc --outDir dist/",
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs",
     "test": "pnpm dlx playwright test"
   },
   "author": "PouletteMC",
