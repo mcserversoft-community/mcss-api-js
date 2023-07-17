@@ -96,24 +96,7 @@ export default class Servers {
         let response;
         if(!this.server) throw new Error("No server selected");
         if(typeof command == "number") {
-            let action = 0;
-            switch(command) {
-                case ServerAction.Stop:
-                    action = 1;
-                    break;
-                case ServerAction.Start:
-                    action = 2;
-                    break;
-                case ServerAction.Kill:
-                    action = 3;
-                    break;
-                case ServerAction.Restart:
-                    action = 4;
-                    break;
-                default:
-                    throw new Error("Invalid action");
-            }
-            response = await this.instance.post(`servers/${this.server}/execute/action`, { action });
+            response = await this.instance.post(`servers/${this.server}/execute/action`, { action: command });
             return this.generateResponse(response.status, response.data);
         }
         if(command.length == 1) {

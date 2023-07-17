@@ -10,7 +10,10 @@
     "build:cjs": "tsc --module commonjs --outDir dist/cjs",
     "test": "pnpm dlx playwright test"
   },
-  "author": "PouletteMC",
+  "authors": [
+    "PouletteMC",
+    "Sir Blob"
+  ],
   "license": "MIT",
   "dependencies": {
     "axios": "^1.4.0",
