@@ -24,19 +24,19 @@ export default class Client {
 
         if(!ip || !port || !apiKey) throw new Error("Missing parameters");
 
-        this.instance = axios.create({
-            validateStatus: () => true,
-            baseURL: `${https ? "https" : "http"}://${ip}:${port}/api/v2/`,
-            headers: {
-                apiKey
-            }
-        });
-
         this.ip = ip;
         this.port = port;
         this.apiKey = apiKey;
         this.https = https;
         this.url = `${https ? "https" : "http"}://${ip}:${port}/api/v2/`;
+
+        this.instance = axios.create({
+            validateStatus: () => true,
+            baseURL: this.url,
+            headers: {
+                apiKey
+            }
+        });
 
         this.servers = new Server(this);
         this.users = new Users(this);

@@ -1,14 +1,13 @@
 {
-  "name": "mcss-api",
-  "version": "0.5.0",
+  "name": "@mcserversoft/mcss-api",
+  "version": "1.0.1",
   "description": "Simple package to interact with MCSS' API",
   "main": "dist/index.js",
-  "module": "dist/csm/index.js",
+  "module": "dist/index.js",
   "scripts": {
-    "build": "pnpm exec swc ./src/index.ts -d dist",
-    "build:esm": "tsc --outDir dist/",
-    "build:cjs": "tsc --module commonjs --outDir dist/cjs",
-    "test": "pnpm dlx playwright test"
+    "build": "tsc --outDir dist/",
+    "publish": "npm run build && npm publish --access public",
+    "test": "node ./test/blob.js"
   },
   "authors": [
     "PouletteMC",
@@ -28,5 +27,22 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "types": "./dist/index.d.ts",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcserversoft-community/mcss-api-js.git"
+  },
+  "keywords": [
+    "MCSS",
+    "API"
+  ],
+  "author": "Sir Blob",
+  "bugs": {
+    "url": "https://github.com/mcserversoft-community/mcss-api-js/issues"
+  },
+  "homepage": "https://github.com/mcserversoft-community/mcss-api-js#readme"
 }

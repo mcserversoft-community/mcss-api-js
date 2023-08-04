@@ -1,8 +1,8 @@
-# mcss-api-js
+# MCSS API
 
 ## Table of Contents
 
-- [mcss-api-js](#mcss-api-js)
+- [MCSS API](#mcss-api)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
   - [Client](#client)
@@ -22,11 +22,11 @@
 
 ## Installation
 ```bash
-npm install mcss-api-js
+npm install @mcserversoft/mcss-api
 ```
 or 
 ```bash
-pnpm install mcss-api-js
+pnpm install @mcserversoft/mcss-api
 ```
 
 ## Client

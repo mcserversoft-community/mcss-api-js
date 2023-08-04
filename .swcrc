@@ -9,10 +9,10 @@
     },
     "target": "es5",
     "loose": false,
-    "externalHelpers": false
-    // "minify": {
-    //   "compress": true,
-    //   "mangle": true
-    // }
+    "externalHelpers": false,
+    "minify": {
+       "compress": true,
+       "mangle": true
+    }
   }
 }
