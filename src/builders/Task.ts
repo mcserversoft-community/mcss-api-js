@@ -7,7 +7,6 @@ export default class Task {
     timing: object | null;
     job: object | null;
     constructor(name: string, enabled: boolean, playerRequirement: number) {
-        if(!name) throw new Error('Task name cannot be empty');
         this.name = name;
         this.enabled = enabled;
         this.playerRequirement = playerRequirement;

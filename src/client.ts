@@ -14,13 +14,13 @@ export type AppResponse = {
 export default class Client {
     instance: AxiosInstance;
     ip: string;
-    port: string | number;
+    port: string | number | null;
     apiKey: string;
     https: boolean;
     url: string;
     servers: Server;
     users: Users;
-    constructor(ip: string, port: string|number , apiKey: string, https: boolean = true) {
+    constructor(ip: string, port: string|number|null, apiKey: string, https: boolean = true) {
 
         if(!ip || !port || !apiKey) throw new Error("Missing parameters");
 
@@ -28,7 +28,7 @@ export default class Client {
         this.port = port;
         this.apiKey = apiKey;
         this.https = https;
-        this.url = `${https ? "https" : "http"}://${ip}:${port}/api/v2/`;
+        this.url = `${https ? "https" : "http"}://${ip}:${port ? port : ""}/api/v2/`;
 
         this.instance = axios.create({
             validateStatus: () => true,

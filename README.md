@@ -4,6 +4,11 @@
 
 - [MCSS API](#mcss-api)
   - [Table of Contents](#table-of-contents)
+  - [Information](#information)
+    - [MC Server Soft Website](#mc-server-soft-website)
+    - [MC Server Soft Discord](#mc-server-soft-discord)
+    - [MC Server Soft Documentation](#mc-server-soft-documentation)
+    - [MC Server Soft API Documentation](#mc-server-soft-api-documentation)
   - [Installation](#installation)
   - [Client](#client)
     - [Types](#types)
@@ -18,7 +23,17 @@
   - [Scheduler](#scheduler)
     - [Example](#example-3)
   - [Backups](#backups)
+    - [Example](#example-4)
 
+
+## Information
+### [MC Server Soft Website](https://www.mcserversoft.com)
+
+### [MC Server Soft Discord](https://discord.com/invite/DEn89PB)
+
+### [MC Server Soft Documentation](https://docs.mcserversoft.com)
+
+### [MC Server Soft API Documentation](https://apidocs.mcserversoft.com)
 
 ## Installation
 ```bash
@@ -61,7 +76,7 @@ type AppResponse = {
 
 ### Example
 ```js
-const { Client } = require('mcss-api-js');
+const { Client } = require('@mcserversoft/mcss-api');
 
 /**
  * @param {string} ip 
@@ -104,7 +119,7 @@ You can also use a Server Builder to edit the server. The Server Builder has the
 - `server.setForceSaveOnStop(forceSaveOnStop: boolean): Server` - Sets whether the server should force save on stop
 - `server.setAllocatedMemory(javaAllocatedMemory: int): Server` - Sets the java allocated memory of the server
 ```js
-const { Server, GB } = require('mcss-api-js');
+const { Server, GB } = require('@mcserversoft/mcss-api');
 
 let newServer = new Server()
     .setName('New Server')
@@ -138,7 +153,7 @@ type ServerResponse = {
 ```
 ServerActions - The actions that can be done on a server
 ```ts
-const { ServerAction } = require('mcss-api-js');
+const { ServerAction } = require('@mcserversoft/mcss-api');
 
 ServerAction.InvalidOrEmpty // Does nothing
 ServerAction.Start // Starts the server
@@ -198,7 +213,7 @@ You can also use a User Builder to create a user. The User Builder has the follo
 - `addCustomServerPermission(serverId: any, viewStats: boolean, viewConsole: boolean, useConsole: boolean, useServerActions: boolean): User` - Adds a custom server permission to the user
 ### Example
 ```js
-const { User } = require('mcss-api-js');
+const { User } = require('@mcserversoft/mcss-api');
 
 let newUser = new User()
     .setUsername('New User')
@@ -252,7 +267,7 @@ You can also use a Task Builder to create a task. The Task Builder has the follo
 ### Example
 ```js
 const ms = require('ms'); // npm install ms or pnpm install ms ( for the timing )
-const { Task, ServerAction } = require('mcss-api-js');
+const { Task, ServerAction } = require('@mcserversoft/mcss-api');
 
 let task = new Task()
     .setName('New Task')
@@ -266,4 +281,49 @@ await server.scheduler.update(task);
 ```
 
 ## Backups
-API for backups is incomplete.
+The backups class is used to get information about the backups of a server. It is a sub class of the server class.
+
+The backups class has 4 methods:
+- `server.backups.get(): Promise<AppResponse>` - Used to get the backups of the server
+- `server.backups.getBackup(): Promise<AppResponse>` - Used to get a backup of the server
+- `server.backups.create(): Promise<AppResponse>` - Used to create a backup of the server
+- `server.backups.update(): Promise<AppResponse>` - Used to update a backup of the server
+- `server.backups.delete(): Promise<AppResponse>` - Used to delete a backup of the server
+- `server.backups.run(): Promise<AppResponse>` - Used to run a backup of the server
+
+To create a backup you need to pass an object with the following properties:
+- `name` (required) : string
+- `destination` (required) : string
+- `suspend`(optional) : boolean
+- `deleteOldBackups` (optional) : boolean
+- `compression` (optional) : object
+- `runBackupAfterCreation` (optional): boolean
+- `fileBlacklist` (optional) : string[]
+- `folderBlacklist` (optional) : string[]
+
+### Example
+```js
+const { Backup, Compression } = require('@mcserversoft/mcss-api');
+
+let server = await client.servers.get('server-id');
+
+let backup = new Backup()
+    .setName('New Backup')
+    .setDestination(server.pathToFolder + '/backups')
+    .setSuspend(false)
+    .setDeleteOldBackups(false)
+    .setCompression(Compression.HIGH)
+    .setRunBackupAfterCreation(false)
+    .setFileBlacklist([
+        "file1",
+        "file2"
+    ])
+    .setFolderBlacklist([
+        "folder1",
+        "folder2"
+    ])
+
+await server.backups.create(backup);
+// or
+await server.backups.update(backup);
+```

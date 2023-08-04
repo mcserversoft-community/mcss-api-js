@@ -1,3 +1,5 @@
+import Backup from "./builders/Backup";
+
 import { AppResponse } from "./client";
 import Servers from "./servers";
 
@@ -32,12 +34,16 @@ export default class Backups {
         return this.generateResponse(response.status, response.data);
     }
 
-    /*
-    public async create(): Promise<AppResponse> {
-        const response = await this.instance.post(`/servers/${this.server}/backups`);
+    public async create(data: Backup): Promise<AppResponse> {
+        if(!data.name || !data.destination) throw new Error('Missing required parameters');
+        const response = await this.instance.post(`/servers/${this.server}/backups`, data);
         return this.generateResponse(response.status, response.data);
     }
-    */
+
+    public async update(backup: string, data: Backup): Promise<AppResponse> {
+        const response = await this.instance.put(`/servers/${this.server}/backups/${backup}`, data);
+        return this.generateResponse(response.status, response.data);
+    }
 
     public async delete(backup: string): Promise<AppResponse> {
         const response = await this.instance.delete(`/servers/${this.server}/backups/${backup}`);
