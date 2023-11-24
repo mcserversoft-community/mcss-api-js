@@ -3,6 +3,13 @@ import { AppResponse } from "./client";
 import Task from "./builders/Task";
 import Servers from "./servers";
 
+export enum TaskFilter {
+    None = 0,
+    FixedTime = 1,
+    Interval = 2,
+    Timeless = 3
+}
+
 export default class Scheduler {
     protected instance: any;
     server: string | null;
@@ -16,6 +23,8 @@ export default class Scheduler {
                 return { status: 200, data }
             case 401:
                 return { status: 401, error: { message: 'Incorrect API key' } }
+            case 403:
+                return { status: 403, error: { message: 'You do not have permission to access this server' } }
             case 404:
                 return { status: 404, error: { message: 'Server not found' } }
             default:
@@ -23,36 +32,71 @@ export default class Scheduler {
         };
     }
 
+    /**
+     * @description Get the current scheduler status
+     * @returns {Promise<AppResponse>}
+     */
     public async get(): Promise<AppResponse> {
         const response = await this.instance.get(`servers/${this.server}/scheduler`);
         return this.generateResponse(response.status, response.data);
     }
 
-    public async getTasks(): Promise<AppResponse> {
-        const response = await this.instance.get(`servers/${this.server}/scheduler/tasks`);
+    /**
+     * @description Get all tasks
+     * @param {TaskFilter|number} filter - The filter to apply
+     * @returns {Promise<AppResponse>}
+     */
+    public async getTasks(filter: TaskFilter|number = 0): Promise<AppResponse> {
+        const response = await this.instance.get(`servers/${this.server}/scheduler/tasks${filter ? `?filter=${filter}` : ''}`);
         return this.generateResponse(response.status, response.data);
     }
 
+    /**
+     * @description Get a specific task
+     * @param {string} Id - The task ID
+     * @returns {Promise<AppResponse>}
+     */
     public async getTask(Id: string): Promise<AppResponse> {
         const response = await this.instance.get(`servers/${this.server}/scheduler/tasks/${Id}`);
         return this.generateResponse(response.status, response.data);
     }
 
+    /**
+     * @description Create a new task
+     * @param {Task} data - The task data
+     * @returns {Promise<AppResponse>}
+     */
     public async create(data: any | Task): Promise<AppResponse> {
         const response = await this.instance.post(`servers/${this.server}/scheduler/tasks`, data);
         return this.generateResponse(response.status, response.data);
     }
 
+    /**
+     * @description Update a task
+     * @param {string} Id - The task ID
+     * @param {Task} data - The task data
+     * @returns {Promise<AppResponse>}
+     */
     public async update(Id: string, data: any | Task): Promise<AppResponse> {
         const response = await this.instance.put(`servers/${this.server}/scheduler/tasks/${Id}`, data);
         return this.generateResponse(response.status, response.data);
     }
 
+    /**
+     * @description Delete a task
+     * @param {string} Id - The task ID
+     * @returns {Promise<AppResponse>}
+     */
     public async delete(Id: string): Promise<AppResponse> {
         const response = await this.instance.delete(`servers/${this.server}/scheduler/tasks/${Id}`);
         return this.generateResponse(response.status, response.data);
     }
 
+    /**
+     * @description Execute a task
+     * @param {string} Id - The task ID
+     * @returns {Promise<AppResponse>}
+     */
     public async run(Id: string): Promise<AppResponse> {
         const response = await this.instance.post(`servers/${this.server}/scheduler/tasks/${Id}/`);
         return this.generateResponse(response.status, response.data);

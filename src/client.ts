@@ -11,6 +11,32 @@ export type AppResponse = {
     }
 }
 
+export enum ServerFilter {
+    NONE = 0,
+    MINIMAL = 1,
+    STATUS = 2
+}
+
+export enum ServerCountFilter {
+    NONE = 0,
+    ONLINE = 1,
+    OFFLINE = 2,
+    BYSERVERTYPE = 3
+}
+
+export enum ServerType {
+    VANILLA = "349bf6c7-2d19-4e42-bcee-592fa862bcee",
+    CRAFTBUKKIT = "afa8b9d6-592d-4016-9dd7-eed4185ca8b8",
+    SPIGOT = "de188054-f3ac-472d-81d6-c57f0412bfa6",
+    PAPER = "f738fb40-223e-4010-bd07-af4caabdf3dd",
+    BUNGEECORD = "1a1bb7be-219f-4dc8-9a6a-4a10dc725391",
+    WATERFALL = "f49ad4bf-7900-45a4-940b-c97468fbba1f",
+    FORGE = "8e3aecd7-b81b-4827-a3e2-93a701cdd3b4",
+    FABRIC = "c45acfcf-b4a1-4733-aab0-f78e1091ae16",
+    BEDROCK = "87c2620f-48a0-47e6-97c1-ff5fbbc128f3",
+    PURPUR = "984ed3d3-636d-4535-82b2-7c1048782c64"
+}
+
 export default class Client {
     instance: AxiosInstance;
     ip: string;
@@ -47,8 +73,14 @@ export default class Client {
         switch(code) {
             case 200:
                 return { status: 200, data };
+            case 204:
+                return { status: 204, data: {} }
+            case 400:
+                return { status: 400, error: { message: 'Invaild Section' } }
             case 401:
                 return { status: 401, error: { message: 'Incorrect API key' } }
+            case 403:
+                return { status: 403, error: { message: 'You do not have permission to access this server' } }
             case 404:
                 return { status: 404, error: { message: 'Server not found' } }
             default: 
@@ -56,18 +88,57 @@ export default class Client {
         }
     }
 
+    /**
+     * @description Get the stats of the panel
+     * @returns {Promise<AppResponse>}
+     */
     public async getStats(): Promise<AppResponse> {
         const response = await this.instance.get("/");
         return this.generateResponse(response.status, response.data);
     }
 
-    public async getServers(): Promise<AppResponse> {
-        const response = await this.instance.get('servers');
+    /**
+     * @description Get all servers
+     * @param {ServerFilter|number} filter - The filter to use
+     * @returns {Promise<AppResponse>}
+     */
+    public async getServers(filter: ServerFilter|number = 0): Promise<AppResponse> {
+        const response = await this.instance.get(`servers?filter=${filter}`);
         return this.generateResponse(response.status, response.data);
     }
 
-    public async getServerCount(): Promise<AppResponse> {
-        const response = await this.instance.get('servers/count');
+    /**
+     * @description Get a server by id
+     * @param {ServerCountFilter|number} filter - The filter to use
+     * @param {ServerType|string} serverType - The server type to use
+     * @returns {Promise<AppResponse>}
+     */
+    public async getServerCount(filter: ServerCountFilter|number = 0, serverType: ServerType|string): Promise<AppResponse> {
+        if(filter === ServerCountFilter.BYSERVERTYPE && !serverType) throw new Error("Missing serverType parameter");
+        const response = await this.instance.get(`servers/count?filter=${filter}${serverType ? `&serverType=${serverType}` : ""}`);
+        return this.generateResponse(response.status, response.data);
+    }
+
+    /**
+     * @description Set MCSS settings
+     * @returns {Promise<AppResponse>}
+     */
+    public async getSettings(): Promise<AppResponse> {
+        const response = await this.instance.get(`mcss/settings/All`);
+        return this.generateResponse(response.status, response.data);
+    }
+
+    /**
+     * @description Update the MCSS settings
+     * @param {number} deleteOldBackupsThreshold - The number of backups to keep
+     * @returns {Promise<AppResponse>}
+     */
+    public async updateSettings(deleteOldBackupsThreshold: number): Promise<AppResponse> {
+        if(!deleteOldBackupsThreshold) throw new Error("Missing deleteOldBackupsThreshold parameter");
+        const settings = {
+            deleteOldBackupsThreshold
+        }
+        const response = await this.instance.patch(`mcss/settings`, settings);
         return this.generateResponse(response.status, response.data);
     }
 
