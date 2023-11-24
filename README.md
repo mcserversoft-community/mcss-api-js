@@ -1,5 +1,7 @@
 # MCSS API
 
+**These Docs were AI Generated**
+
 ## Table of Contents
 
 - [MCSS API](#mcss-api)
@@ -10,20 +12,70 @@
     - [MC Server Soft Documentation](#mc-server-soft-documentation)
     - [MC Server Soft API Documentation](#mc-server-soft-api-documentation)
   - [Installation](#installation)
-  - [Client](#client)
-    - [Types](#types)
-    - [Example](#example)
-  - [Server](#server)
-    - [Editing a Server](#editing-a-server)
-    - [Types](#types-1)
-    - [Example](#example-1)
-  - [Users](#users)
-    - [Example customServerPermissions](#example-customserverpermissions)
-    - [Example](#example-2)
-  - [Scheduler](#scheduler)
-    - [Example](#example-3)
-  - [Backups](#backups)
-    - [Example](#example-4)
+- [Client Documentation](#client-documentation)
+  - [Table of Contents](#table-of-contents-1)
+  - [Constructor](#constructor)
+    - [`constructor(ip: string, port: string | number | null, apiKey: string, https: boolean = true)`](#constructorip-string-port-string--number--null-apikey-string-https-boolean--true)
+  - [Methods](#methods)
+    - [`getStats(): Promise<AppResponse>`](#getstats-promiseappresponse)
+    - [`getServers(filter: ServerFilter | number = 0): Promise<AppResponse>`](#getserversfilter-serverfilter--number--0-promiseappresponse)
+    - [`getServerCount(filter: ServerCountFilter | number = 0, serverType: ServerType | string): Promise<AppResponse>`](#getservercountfilter-servercountfilter--number--0-servertype-servertype--string-promiseappresponse)
+    - [`getSettings(): Promise<AppResponse>`](#getsettings-promiseappresponse)
+    - [`updateSettings(deleteOldBackupsThreshold: number): Promise<AppResponse>`](#updatesettingsdeleteoldbackupsthreshold-number-promiseappresponse)
+  - [AppResponse Interface](#appresponse-interface)
+  - [Enums](#enums)
+    - [ServerFilter](#serverfilter)
+    - [ServerCountFilter](#servercountfilter)
+    - [ServerType](#servertype)
+- [Servers Documentation](#servers-documentation)
+  - [Table of Contents](#table-of-contents-2)
+  - [Constructor](#constructor-1)
+    - [`constructor(obj: Client)`](#constructorobj-client)
+  - [Methods](#methods-1)
+    - [`get(Id: string, filter: ServerFilter | number = 0): Promise<ServerResponse>`](#getid-string-filter-serverfilter--number--0-promiseserverresponse)
+    - [`execute(servers: string[], ...command: any): Promise<AppResponse>`](#executeservers-string-command-any-promiseappresponse)
+  - [ServerResponse Interface](#serverresponse-interface)
+  - [Enums](#enums-1)
+    - [ServerAction](#serveraction)
+- [Scheduler Documentation](#scheduler-documentation)
+  - [Table of Contents](#table-of-contents-3)
+  - [Constructor](#constructor-2)
+    - [`constructor(obj: Servers)`](#constructorobj-servers)
+  - [Methods](#methods-2)
+    - [`get(): Promise<AppResponse>`](#get-promiseappresponse)
+    - [`getTasks(filter: TaskFilter | number = 0): Promise<AppResponse>`](#gettasksfilter-taskfilter--number--0-promiseappresponse)
+    - [`getTask(Id: string): Promise<AppResponse>`](#gettaskid-string-promiseappresponse)
+    - [`create(data: any | Task): Promise<AppResponse>`](#createdata-any--task-promiseappresponse)
+    - [`update(Id: string, data: any | Task): Promise<AppResponse>`](#updateid-string-data-any--task-promiseappresponse)
+    - [`delete(Id: string): Promise<AppResponse>`](#deleteid-string-promiseappresponse)
+    - [`run(Id: string): Promise<AppResponse>`](#runid-string-promiseappresponse)
+  - [Enums](#enums-2)
+    - [TaskFilter](#taskfilter)
+- [Backups Documentation](#backups-documentation)
+  - [Table of Contents](#table-of-contents-4)
+  - [Constructor](#constructor-3)
+    - [`constructor(obj: Servers)`](#constructorobj-servers-1)
+  - [Methods](#methods-3)
+    - [`get(): Promise<AppResponse>`](#get-promiseappresponse-1)
+    - [`getStats(): Promise<AppResponse>`](#getstats-promiseappresponse-1)
+    - [`getBackup(backup: string): Promise<AppResponse>`](#getbackupbackup-string-promiseappresponse)
+    - [`create(data: Backup): Promise<AppResponse>`](#createdata-backup-promiseappresponse)
+    - [`update(backup: string, data: Backup): Promise<AppResponse>`](#updatebackup-string-data-backup-promiseappresponse)
+    - [`delete(backup: string): Promise<AppResponse>`](#deletebackup-string-promiseappresponse)
+    - [`run(backup: string): Promise<AppResponse>`](#runbackup-string-promiseappresponse)
+    - [`getHistory(): Promise<AppResponse>`](#gethistory-promiseappresponse)
+    - [`clearHistory(): Promise<AppResponse>`](#clearhistory-promiseappresponse)
+- [Users Documentation](#users-documentation)
+  - [Table of Contents](#table-of-contents-5)
+  - [Constructor](#constructor-4)
+    - [`constructor(obj: Client)`](#constructorobj-client-1)
+  - [Methods](#methods-4)
+    - [`get(): Promise<AppResponse>`](#get-promiseappresponse-2)
+    - [`getUser(id: string): Promise<AppResponse>`](#getuserid-string-promiseappresponse)
+    - [`createUser(user: object | User): Promise<AppResponse>`](#createuseruser-object--user-promiseappresponse)
+    - [`updateUser(id: string, user: object | User): Promise<AppResponse>`](#updateuserid-string-user-object--user-promiseappresponse)
+    - [`deleteUser(id: string): Promise<AppResponse>`](#deleteuserid-string-promiseappresponse)
+    - [`wipeSessions(): Promise<AppResponse>`](#wipesessions-promiseappresponse)
 
 
 ## Information
@@ -44,286 +96,680 @@ or
 pnpm install @mcserversoft/mcss-api
 ```
 
-## Client
-The client is the main class of the package. It is used to communicate with the server.
-<br>
-The constructor takes 4 parameters:
-- `ip` - The ip of the server
-- `port` - The port of the server
-- `apiKey` - The api key of the server
-- `https` - Whether the server is using https or not
+# Client Documentation
 
-The client has 3 methods:
-- `client.getStats(): Promise<AppResponse>` - Used to get the stats of the api
-- `client.getServers(): Promise<AppResponse>` - Used to get all servers created
-- `client.getServerCount(): Promise<AppResponse>` - Used to get the amount of servers created
+The `Client` class is a JavaScript/TypeScript client for interacting with an API that manages Minecraft servers. This documentation provides an overview of the class and its methods.
 
-The client has 2 sub classes:
-- [`client.servers`](#server) - Used to get information about servers
-- [`client.users`](#users) - Used to get information about users
+## Table of Contents
 
-### Types
-AppResponse - The response from the api
-```ts
-type AppResponse = {
-    status: number
-    data?: any
+- [Constructor](#constructor)
+- [Methods](#methods)
+  - [getStats](#getstats)
+  - [getServers](#getservers)
+  - [getServerCount](#getservercount)
+  - [getSettings](#getsettings)
+  - [updateSettings](#updatesettings)
+
+## Constructor
+
+### `constructor(ip: string, port: string | number | null, apiKey: string, https: boolean = true)`
+
+Creates an instance of the `Client` class to interact with the Minecraft server management API.
+
+- `ip`: The IP address of the server.
+- `port`: The port number of the server (can be `null`).
+- `apiKey`: The API key for authentication.
+- `https`: A boolean indicating whether to use HTTPS (default is `true`).
+
+**Example:**
+
+```javascript
+const client = new Client('127.0.0.1', 8080, 'your_api_key', true);
+```
+
+## Methods
+
+### `getStats(): Promise<AppResponse>`
+
+Gets the statistics of the panel.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const stats = await client.getStats();
+```
+
+### `getServers(filter: ServerFilter | number = 0): Promise<AppResponse>`
+
+Gets all servers based on the specified filter.
+
+- `filter`: The filter to use (default is `ServerFilter.NONE`).
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const servers = await client.getServers(ServerFilter.MINIMAL);
+```
+
+### `getServerCount(filter: ServerCountFilter | number = 0, serverType: ServerType | string): Promise<AppResponse>`
+
+Gets the count of servers based on the specified filter and server type.
+
+- `filter`: The filter to use (default is `ServerCountFilter.NONE`).
+- `serverType`: The server type for counting.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const serverCount = await client.getServerCount(ServerCountFilter.ONLINE, ServerType.VANILLA);
+```
+
+### `getSettings(): Promise<AppResponse>`
+
+Gets the MCSS settings.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const settings = await client.getSettings();
+```
+
+### `updateSettings(deleteOldBackupsThreshold: number): Promise<AppResponse>`
+
+Updates the MCSS settings, specifically the number of backups to keep.
+
+- `deleteOldBackupsThreshold`: The number of backups to keep.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const updatedSettings = await client.updateSettings(5);
+```
+
+## AppResponse Interface
+
+The `AppResponse` interface represents the response from the API and has the following structure:
+
+```typescript
+interface AppResponse {
+    status: number;
+    data?: any;
     error?: {
-        message: string
-    }
+        message: string;
+    };
 }
 ```
 
-### Example
-```js
-const { Client } = require('@mcserversoft/mcss-api');
+- `status`: The HTTP status code of the response.
+- `data`: The data payload of the response (optional).
+- `error`: An object containing an error message (optional).
 
-/**
- * @param {string} ip 
- * @param {number} port 
- * @param {string} apiKey
- * @param {boolean} https
- */
-const client = new Client('localhost', 8080, 'key', false);
+## Enums
+
+### ServerFilter
+
+- `NONE`: 0
+- `MINIMAL`: 1
+- `STATUS`: 2
+
+### ServerCountFilter
+
+- `NONE`: 0
+- `ONLINE`: 1
+- `OFFLINE`: 2
+- `BYSERVERTYPE`: 3
+
+### ServerType
+
+- `VANILLA`: "349bf6c7-2d19-4e42-bcee-592fa862bcee"
+- `CRAFTBUKKIT`: "afa8b9d6-592d-4016-9dd7-eed4185ca8b8"
+- `SPIGOT`: "de188054-f3ac-472d-81d6-c57f0412bfa6"
+- `PAPER`: "f738fb40-223e-4010-bd07-af4caabdf3dd"
+- `BUNGEECORD`: "1a1bb7be-219f-4dc8-9a6a-4a10dc725391"
+- `WATERFALL`: "f49ad4bf-7900-45a4-940b-c97468fbba1f"
+- `FORGE`: "8e3aecd7-b81b-4827-a3e2-93a701cdd3b4"
+- `FABRIC`: "c45acfcf-b4a1-4733-aab0-f78e1091ae16"
+- `BEDROCK`: "87c2620f-48a0-47e6-97c1-ff5fbbc128f3"
+- `PURPUR`: "984ed3d3-636d-4535-82b2-7c1048782c64"
+
+# Servers Documentation
+
+The `Servers` class is a part of a JavaScript/TypeScript client for interacting with an API that manages Minecraft servers. This documentation provides an overview of the class and its methods.
+
+## Table of Contents
+
+- [Constructor](#constructor)
+- [Methods](#methods)
+  - [get](#get)
+  - [execute](#execute)
+
+## Constructor
+
+### `constructor(obj: Client)`
+
+Creates an instance of the `Servers` class to interact with the Minecraft server management API.
+
+- `obj`: An instance of the `Client` class.
+
+**Example:**
+
+```javascript
+const client = new Client('127.0.0.1', 8080, 'your_api_key', true);
+const servers = new Servers(client);
 ```
 
-## Server
-The server is a class that is used to get information about a server/s. It is a sub class of the client class.
-<br>
+## Methods
 
-The server has 1 main methods:
-- `client.servers.get(): Promise<ServerResponse>` - Used to get a server by its id
+### `get(Id: string, filter: ServerFilter | number = 0): Promise<ServerResponse>`
 
-A server response has 6 methods and 2 sub classes:
-- `server.getStats(): Promise<AppResponse>` - Used to get the stats of the server
-- `server.getIcon(): Promise<AppResponse>` - Used to get the icon of the server
-- `server.execute(): Promise<AppResponse>` - Used to execute a command on the server
-- `server.edit(): Promise<AppResponse>` - Used to edit the server
-- `server.getConsole(): Promise<AppResponse>` - Used to get the console of the server
-- `server.isConsoleOutdated(): Promise<AppResponse>` - Used to check if the console is outdated
-- [`server.scheduler`](#scheduler) - Used to get information about the scheduler
-- [`server.backups`](#backups) - Used to get information about the backups
+Gets the server with the specified ID.
 
-### Editing a Server
-The server can be edited by using the `server.edit()` method. The method takes 1 parameter that is an object with the following properties:
-- `name` (optional) : string
-- `description` (optional) : string
-- `isSetToAutoStart` (optional) : boolean
-- `forceSaveOnStop` (optional) : boolean
-- `javaAllocatedMemory` (optional) : int
-  
-You can also use a Server Builder to edit the server. The Server Builder has the following methods:
-- `server.setName(name: string): Server` - Sets the name of the server
-- `server.setDescription(description: string): Server` - Sets the description of the server
-- `server.setAutoStart(isSetToAutoStart: boolean): Server` - Sets whether the server is set to auto start
-- `server.setForceSaveOnStop(forceSaveOnStop: boolean): Server` - Sets whether the server should force save on stop
-- `server.setAllocatedMemory(javaAllocatedMemory: int): Server` - Sets the java allocated memory of the server
-```js
-const { Server, GB } = require('@mcserversoft/mcss-api');
+- `Id`: The server ID.
+- `filter`: The filter to apply (default is `ServerFilter.NONE`).
 
-let newServer = new Server()
-    .setName('New Server')
-    .setDescription('This is a new server')
-    .setAutoStart(true)
-    .setForceSaveOnStop(true)
-    .setAllocatedMemory(GB.ONE)
+**Returns:**
+- A promise resolving to a `ServerResponse` object.
 
-let server = await client.servers.get('server-id');
-await server.edit(newServer);
+**Example:**
+
+```javascript
+const server = await servers.get('server_id', ServerFilter.MINIMAL);
 ```
 
-### Types
- ServerResponse - The response from the server
-```ts
-type ServerResponse = {
-    status: number
-    data?: any
+### `execute(servers: string[], ...command: any): Promise<AppResponse>`
+
+Executes a command on the specified servers.
+
+- `servers`: An array of server IDs.
+- `command`: The command to execute.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const response = await servers.execute(['server_id'], ServerAction.Restart);
+```
+
+## ServerResponse Interface
+
+The `ServerResponse` interface represents the response from the server-related API calls and has the following structure:
+
+```typescript
+interface ServerResponse {
+    status: number;
+    data?: any;
     error?: {
-        message: string
-    }
-    getStats?: () => Promise<AppResponse>
-    getIcon?: () => Promise<AppResponse>
-    execute?: (...command: any) => Promise<AppResponse>
-    edit?: (obj: Server|object) => Promise<AppResponse>
-    getConsole?: (AmountOfLines?: number, Reversed?: boolean, takeFromBeginning?: boolean) => Promise<AppResponse>
-    isConsoleOutdated?: () => Promise<AppResponse>
-    scheduler?: Scheduler
-    backups?: Backups
+        message: string;
+    };
+    getStats?: () => Promise<AppResponse>;
+    getIcon?: () => Promise<AppResponse>;
+    execute?: (...command: any) => Promise<AppResponse>;
+    edit?: (obj: Server | object) => Promise<AppResponse>;
+    getConsole?: (AmountOfLines?: number, Reversed?: boolean, takeFromBeginning?: boolean) => Promise<AppResponse>;
+    isConsoleOutdated?: () => Promise<AppResponse>;
+    scheduler?: Scheduler;
+    backups?: Backups;
 }
 ```
-ServerActions - The actions that can be done on a server
-```ts
-const { ServerAction } = require('@mcserversoft/mcss-api');
 
-ServerAction.InvalidOrEmpty // Does nothing
-ServerAction.Start // Starts the server
-ServerAction.Stop // Stops the server
-ServerAction.Restart // Restarts the server
-ServerAction.Kill // Kills the server
+- `status`: The HTTP status code of the response.
+- `data`: The data payload of the response (optional).
+- `error`: An object containing an error message (optional).
+- Additional methods for interacting with the server, such as `getStats`, `getIcon`, `execute`, `edit`, `getConsole`, `isConsoleOutdated`, `scheduler`, and `backups`.
+
+## Enums
+
+### ServerAction
+
+- `InvalidOrEmpty`: 0
+- `Stop`: 1
+- `Start`: 2
+- `Kill`: 3
+- `Restart`: 4
+
+# Scheduler Documentation
+
+The `Scheduler` class is part of a JavaScript/TypeScript client for interacting with an API that manages tasks and scheduling on Minecraft servers. This documentation provides an overview of the class and its methods.
+
+## Table of Contents
+
+- [Constructor](#constructor)
+- [Methods](#methods)
+  - [get](#get)
+  - [getTasks](#gettasks)
+  - [getTask](#gettask)
+  - [create](#create)
+  - [update](#update)
+  - [delete](#delete)
+  - [run](#run)
+
+## Constructor
+
+### `constructor(obj: Servers)`
+
+Creates an instance of the `Scheduler` class to interact with the Minecraft server scheduler API.
+
+- `obj`: An instance of the `Servers` class.
+
+**Example:**
+
+```javascript
+const client = new Client('127.0.0.1', 8080, 'your_api_key', true);
+const servers = new Servers(client);
+const scheduler = new Scheduler(servers);
 ```
 
-### Example
-```js
-let server = await client.servers.get('server-id');
+## Methods
+
+### `get(): Promise<AppResponse>`
+
+Gets the current status of the scheduler.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const schedulerStatus = await scheduler.get();
 ```
 
-## Users
-The users class is used to get information about users. It is a sub class of the client class.
-<br>
-The users class has 6 methods:
-- `client.users.get(): Promise<AppResponse>` - Used to get all users
-- `client.users.getUser(): Promise<AppResponse>` - Used to get a user by their id
-- `client.users.createUser(): Promise<AppResponse>` - Used to create a user
-- `client.users.deleteUser(): Promise<AppResponse>` - Used to delete a user
-- `client.users.updateUser(): Promise<AppResponse>` - Used to edit a user
-- `client.users.wipeSessions(): Promise<AppResponse>` - Used to wipe all sessions of a user
+### `getTasks(filter: TaskFilter | number = 0): Promise<AppResponse>`
 
-To create a user you need to pass an object with the following properties:
-- `username` (required) : string
-- `password` (required) : string
-- `passwordRepeat` (required) : string
-- `enabled` (optional) : boolean
-- `isAdmin` (optional) : boolean
-- `hasAccessToAllServers` (optional): boolean
-- `customServerPermissions` (optional) : object[]
-  - `serverId` (required) : string 
-    - `viewStats` (required) : boolean,
-    - `viewConsole` (required) : boolean,
-    - `useConsole` (required) : boolean,
-    - `useServerActions` (required) : boolean
-### Example customServerPermissions
-```json 
-[
-    "serverId": {
-        "viewStats": true,
-        "viewConsole": true,
-        "useConsole": true,
-        "useServerActions": true
-    }
-]
-```
-You can also use a User Builder to create a user. The User Builder has the following methods:
-- `user.setUsername(username: string): User` - Sets the username of the user
-- `user.setPassword(password: string): User` - Sets the password of the user
-- `user.setPasswordRepeat(passwordRepeat: string): User` - Sets the password repeat of the user
-- `user.setEnabled(enabled: boolean): User` - Sets whether the user is enabled
-- `user.setAdmin(isAdmin: boolean): User` - Sets whether the user is an admin
-- `user.setHasAccessToAllServers(hasAccessToAllServers: boolean): User` - Sets whether the user has access to all servers
-- `user.setCustomServerPermissions(customServerPermissions: object[]): User` - Sets the custom server permissions of the user
-- `addCustomServerPermission(serverId: any, viewStats: boolean, viewConsole: boolean, useConsole: boolean, useServerActions: boolean): User` - Adds a custom server permission to the user
-### Example
-```js
-const { User } = require('@mcserversoft/mcss-api');
+Gets all tasks based on the specified filter.
 
-let newUser = new User()
-    .setUsername('New User')
-    .setPassword('password')
-    .setPasswordRepeat('password')
-    .setEnabled(true)
-    .setAdmin(false)
-    .setHasAccessToAllServers(false)
-    .setCustomServerPermissions([
-        {
-            "serverId": {
-                "viewStats": true,
-                "viewConsole": true,
-                "useConsole": true,
-                "useServerActions": true
-            }
-        }
-    ])
-    .addServerPermission('serverId', true, true, true, true)
+- `filter`: The filter to apply (default is `TaskFilter.None`).
 
-await client.users.createUser(newUser);
-// or 
-await client.users.updateUser(newUser);
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const tasks = await scheduler.getTasks(TaskFilter.FixedTime);
 ```
 
-## Scheduler
-The scheduler class is used to get information about the scheduler of a server. It is a sub class of the server class.
-<br>
-The scheduler class has 7 methods:
-- `server.scheduler.get(): Promise<AppResponse>` - Used to get the scheduler of the server
-- `server.scheduler.getTasks(): Promise<AppResponse>` - Used to get the tasks of the scheduler
-- `server.scheduler.getTask(): Promise<AppResponse>` - Used to get a task of the scheduler
-- `server.scheduler.create(): Promise<AppResponse>` - Used to create a task for the scheduler
-- `server.scheduler.delete(): Promise<AppResponse>` - Used to delete a task of the scheduler
-- `server.scheduler.update(): Promise<AppResponse>` - Used to update a task of the scheduler
-- `server.scheduler.run(): Promise<AppResponse>` - Used to run a task of the scheduler
+### `getTask(Id: string): Promise<AppResponse>`
 
-To create a task you need to pass an object with the following properties:
-- `name` (required) : string
-- `enabled` (optional) : boolean
-- `playerRequirement` (optional) : object
-- `timing` (required) : object
-- `job` (required): object
-  
-You can also use a Task Builder to create a task. The Task Builder has the following methods:
-- `task.setName(name: string): Scheduler` - Sets the name of the task
-- `task.setEnabled(enabled: boolean): Scheduler` - Sets whether the task is enabled
-- `task.setPlayerRequirement(playerRequirement: object): Scheduler` - Sets the player requirement of the task
-- `task.setTiming(timing: object): Scheduler` - Sets the timing of the task
-- `task.addJob(action: object | ServerAction | string[]): Task` - Sets the job of the task
-### Example
-```js
-const ms = require('ms'); // npm install ms or pnpm install ms ( for the timing )
-const { Task, ServerAction } = require('@mcserversoft/mcss-api');
+Gets a specific task by ID.
 
-let task = new Task()
-    .setName('New Task')
-    .setEnabled(true)
-    .setTiming(true, ms('1h'))
-    .addJob(ServerAction.Restart)
+- `Id`: The ID of the task.
 
-await server.scheduler.create(task);
-// or
-await server.scheduler.update(task);
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const taskDetails = await scheduler.getTask('task_id');
 ```
 
-## Backups
-The backups class is used to get information about the backups of a server. It is a sub class of the server class.
+### `create(data: any | Task): Promise<AppResponse>`
 
-The backups class has 4 methods:
-- `server.backups.get(): Promise<AppResponse>` - Used to get the backups of the server
-- `server.backups.getBackup(): Promise<AppResponse>` - Used to get a backup of the server
-- `server.backups.create(): Promise<AppResponse>` - Used to create a backup of the server
-- `server.backups.update(): Promise<AppResponse>` - Used to update a backup of the server
-- `server.backups.delete(): Promise<AppResponse>` - Used to delete a backup of the server
-- `server.backups.run(): Promise<AppResponse>` - Used to run a backup of the server
+Creates a new task.
 
-To create a backup you need to pass an object with the following properties:
-- `name` (required) : string
-- `destination` (required) : string
-- `suspend`(optional) : boolean
-- `deleteOldBackups` (optional) : boolean
-- `compression` (optional) : object
-- `runBackupAfterCreation` (optional): boolean
-- `fileBlacklist` (optional) : string[]
-- `folderBlacklist` (optional) : string[]
+- `data`: The task data.
 
-### Example
-```js
-const { Backup, Compression } = require('@mcserversoft/mcss-api');
+**Returns:**
+- A promise resolving to an `AppResponse` object.
 
-let server = await client.servers.get('server-id');
+**Example:**
 
-let backup = new Backup()
-    .setName('New Backup')
-    .setDestination(server.pathToFolder + '/backups')
-    .setSuspend(false)
-    .setDeleteOldBackups(false)
-    .setCompression(Compression.HIGH)
-    .setRunBackupAfterCreation(false)
-    .setFileBlacklist([
-        "file1",
-        "file2"
-    ])
-    .setFolderBlacklist([
-        "folder1",
-        "folder2"
-    ])
+```javascript
+const newTask = await scheduler.create({ name: 'Task 1', type: 'fixed', time: '12:00' });
+```
 
-await server.backups.create(backup);
-// or
-await server.backups.update(backup);
+### `update(Id: string, data: any | Task): Promise<AppResponse>`
+
+Updates an existing task by ID.
+
+- `Id`: The ID of the task.
+- `data`: The updated task data.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const updatedTask = await scheduler.update('task_id', { name: 'Updated Task', type: 'interval', interval: 300 });
+```
+
+### `delete(Id: string): Promise<AppResponse>`
+
+Deletes a task by ID.
+
+- `Id`: The ID of the task to delete.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const deleteResponse = await scheduler.delete('task_id');
+```
+
+### `run(Id: string): Promise<AppResponse>`
+
+Executes a task by ID.
+
+- `Id`: The ID of the task to execute.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const executionResponse = await scheduler.run('task_id');
+```
+
+## Enums
+
+### TaskFilter
+
+- `None`: 0
+- `FixedTime`: 1
+- `Interval`: 2
+- `Timeless`: 3
+
+# Backups Documentation
+
+The `Backups` class is part of a JavaScript/TypeScript client for interacting with an API that manages backups on Minecraft servers. This documentation provides an overview of the class and its methods.
+
+## Table of Contents
+
+- [Constructor](#constructor)
+- [Methods](#methods)
+  - [get](#get)
+  - [getStats](#getstats)
+  - [getBackup](#getbackup)
+  - [create](#create)
+  - [update](#update)
+  - [delete](#delete)
+  - [run](#run)
+  - [getHistory](#gethistory)
+  - [clearHistory](#clearhistory)
+
+## Constructor
+
+### `constructor(obj: Servers)`
+
+Creates an instance of the `Backups` class to interact with the Minecraft server backups API.
+
+- `obj`: An instance of the `Servers` class.
+
+**Example:**
+
+```javascript
+const client = new Client('127.0.0.1', 8080, 'your_api_key', true);
+const servers = new Servers(client);
+const backups = new Backups(servers);
+```
+
+## Methods
+
+### `get(): Promise<AppResponse>`
+
+Gets all backups.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const allBackups = await backups.get();
+```
+
+### `getStats(): Promise<AppResponse>`
+
+Gets backup statistics.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const backupStats = await backups.getStats();
+```
+
+### `getBackup(backup: string): Promise<AppResponse>`
+
+Gets details about a specific backup by ID.
+
+- `backup`: The ID of the backup.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const backupDetails = await backups.getBackup('backup_id');
+```
+
+### `create(data: Backup): Promise<AppResponse>`
+
+Creates a new backup.
+
+- `data`: The backup data.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const newBackup = await backups.create({ name: 'Backup 1', destination: '/path/to/backup' });
+```
+
+### `update(backup: string, data: Backup): Promise<AppResponse>`
+
+Updates an existing backup by ID.
+
+- `backup`: The ID of the backup.
+- `data`: The updated backup data.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const updatedBackup = await backups.update('backup_id', { name: 'Updated Backup', destination: '/new/path' });
+```
+
+### `delete(backup: string): Promise<AppResponse>`
+
+Deletes a backup by ID.
+
+- `backup`: The ID of the backup.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const deleteResponse = await backups.delete('backup_id');
+```
+
+### `run(backup: string): Promise<AppResponse>`
+
+Runs a backup by ID.
+
+- `backup`: The ID of the backup.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const runResponse = await backups.run('backup_id');
+```
+
+### `getHistory(): Promise<AppResponse>`
+
+Gets the backup history for the server.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const backupHistory = await backups.getHistory();
+```
+
+### `clearHistory(): Promise<AppResponse>`
+
+Clears the backup history for the server.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const clearHistoryResponse = await backups.clearHistory();
+```
+
+# Users Documentation
+
+The `Users` class is part of a JavaScript/TypeScript client for interacting with an API that manages users on Minecraft servers. This documentation provides an overview of the class and its methods.
+
+## Table of Contents
+
+- [Constructor](#constructor)
+- [Methods](#methods)
+  - [get](#get)
+  - [getUser](#getuser)
+  - [createUser](#createuser)
+  - [updateUser](#updateuser)
+  - [deleteUser](#deleteuser)
+  - [wipeSessions](#wipesessions)
+
+## Constructor
+
+### `constructor(obj: Client)`
+
+Creates an instance of the `Users` class to interact with the Minecraft server users API.
+
+- `obj`: An instance of the `Client` class.
+
+**Example:**
+
+```javascript
+const client = new Client('127.0.0.1', 8080, 'your_api_key', true);
+const users = new Users(client);
+```
+
+## Methods
+
+### `get(): Promise<AppResponse>`
+
+Gets all users.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const allUsers = await users.get();
+```
+
+### `getUser(id: string): Promise<AppResponse>`
+
+Gets details about a specific user by ID.
+
+- `id`: The ID of the user.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const userDetails = await users.getUser('user_id');
+```
+
+### `createUser(user: object | User): Promise<AppResponse>`
+
+Creates a new user.
+
+- `user`: The user data.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const newUser = await users.createUser({ username: 'new_user', password: 'password123' });
+```
+
+### `updateUser(id: string, user: object | User): Promise<AppResponse>`
+
+Updates an existing user by ID.
+
+- `id`: The ID of the user.
+- `user`: The updated user data.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const updatedUser = await users.updateUser('user_id', { username: 'updated_user', password: 'new_password' });
+```
+
+### `deleteUser(id: string): Promise<AppResponse>`
+
+Deletes a user by ID.
+
+- `id`: The ID of the user.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const deleteUserResponse = await users.deleteUser('user_id');
+```
+
+### `wipeSessions(): Promise<AppResponse>`
+
+Wipes all user sessions.
+
+**Returns:**
+- A promise resolving to an `AppResponse` object.
+
+**Example:**
+
+```javascript
+const wipeSessionsResponse = await users.wipeSessions();
 ```
