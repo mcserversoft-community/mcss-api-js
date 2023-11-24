@@ -3,6 +3,10 @@ import axios, { AxiosInstance } from 'axios';
 import Server from './servers';
 import Users from './users';
 
+/**
+ * @interface AppResponse
+ * @description The response from the API
+ */
 export type AppResponse = {
     status: number
     data?: any
@@ -11,12 +15,20 @@ export type AppResponse = {
     }
 }
 
+/**
+ * @enum ServerFilter
+ * @description The filter to use when getting servers
+ */
 export enum ServerFilter {
     NONE = 0,
     MINIMAL = 1,
     STATUS = 2
 }
 
+/**
+ * @enum ServerCountFilter
+ * @description The filter to use when getting server count
+ */
 export enum ServerCountFilter {
     NONE = 0,
     ONLINE = 1,
@@ -24,6 +36,10 @@ export enum ServerCountFilter {
     BYSERVERTYPE = 3
 }
 
+/**
+ * @enum ServerType
+ * @description The server type to use when getting server count
+ */
 export enum ServerType {
     VANILLA = "349bf6c7-2d19-4e42-bcee-592fa862bcee",
     CRAFTBUKKIT = "afa8b9d6-592d-4016-9dd7-eed4185ca8b8",

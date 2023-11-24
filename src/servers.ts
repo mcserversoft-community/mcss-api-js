@@ -5,6 +5,10 @@ import Server from "./builders/Server";
 import Scheduler from "./scheduler";
 import Backups from "./backups";
 
+/**
+ * @interface ServerResponse
+ * @description The server response object
+ */
 type ServerResponse = {
     status: number
     data?: any
@@ -21,6 +25,10 @@ type ServerResponse = {
     backups?: Backups
 }
 
+/**
+ * @enum ServerAction
+ * @description The server action enum
+ */
 export enum ServerAction {
     InvalidOrEmpty = 0,
     Stop = 1,

@@ -3,6 +3,10 @@ import { AppResponse } from "./client";
 import Task from "./builders/Task";
 import Servers from "./servers";
 
+/**
+ * @enum TaskFilter
+ * @description The scheduler response object
+ */
 export enum TaskFilter {
     None = 0,
     FixedTime = 1,
