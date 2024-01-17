@@ -12,7 +12,12 @@ export enum Permissions {
     createBackup = "createBackup",
     editBackup = "editBackup",
     deleteBackups = "deleteBackups",
-    triggerBackup = "triggerBackup"
+    triggerBackup = "triggerBackup",
+    viewSchedulerTasks = "viewSchedulerTasks",
+    createSchedulerTasks = "createSchedulerTasks",
+    editSchedulerTask = "editSchedulerTask",
+    deleteSchedulerTasks = "deleteSchedulerTasks",
+    triggerSchedulerTask = "triggerSchedulerTask",
 }
 
 export default class User {

@@ -6,3 +6,7 @@ package-lock.json
 
 test/
 .VSCodeCounter/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

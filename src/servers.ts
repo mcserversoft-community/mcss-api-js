@@ -1,29 +1,11 @@
-import Client, { AppResponse, ServerFilter } from "./client";
+import { AxiosInstance } from "axios";
+import { AppResponse, ServerResponse } from "./types";
+
+import { ServerFilter } from "./client";
 
 import Server from "./builders/Server";
-
 import Scheduler from "./scheduler";
 import Backups from "./backups";
-
-/**
- * @interface ServerResponse
- * @description The server response object
- */
-type ServerResponse = {
-    status: number
-    data?: any
-    error?: {
-        message: string
-    }
-    getStats?: () => Promise<AppResponse>
-    getIcon?: () => Promise<AppResponse>
-    execute?: (...command: any) => Promise<AppResponse>
-    edit?: (obj: Server|object) => Promise<AppResponse>
-    getConsole?: (AmountOfLines?: number, Reversed?: boolean, takeFromBeginning?: boolean) => Promise<AppResponse>
-    isConsoleOutdated?: () => Promise<AppResponse>
-    scheduler?: Scheduler
-    backups?: Backups
-}
 
 /**
  * @enum ServerAction
@@ -38,10 +20,10 @@ export enum ServerAction {
 }
 
 export default class Servers {
-    instance: any;
+    #instance: any;
     server: string | null;
-    constructor(obj: Client) {
-        this.instance = obj.instance;
+    constructor(instance: AxiosInstance) {
+        this.#instance = instance;
         this.server = null;
     }
 
@@ -57,11 +39,11 @@ export default class Servers {
                     edit: this.edit.bind(this),
                     getConsole: this.getConsole.bind(this),
                     isConsoleOutdated: this.isConsoleOutdated.bind(this),
-                    scheduler: new Scheduler(this),
-                    backups: new Backups(this)
+                    scheduler: new Scheduler(this.#instance, this.server),
+                    backups: new Backups(this.#instance, this.server)
                 }
             case 207:
-                return { status: 207, data: data.map((d: any) => ({ ...d, getStats: this.getStats.bind(this), getIcon: this.getIcon.bind(this), execute: this.serverExecute.bind(this), edit: this.edit.bind(this), getConsole: this.getConsole.bind(this), isConsoleOutdated: this.isConsoleOutdated.bind(this), scheduler: new Scheduler(this), backups: new Backups(this) })) }
+                return { status: 207, data: data.map((d: any) => ({ ...d, getStats: this.getStats.bind(this), getIcon: this.getIcon.bind(this), execute: this.serverExecute.bind(this), edit: this.edit.bind(this), getConsole: this.getConsole.bind(this), isConsoleOutdated: this.isConsoleOutdated.bind(this), scheduler: new Scheduler(this.#instance, this.server), backups: new Backups(this.#instance, this.server) })) }
             case 401:
                 return { status: 401, error: { message: 'Incorrect API key' } }
             case 403: 
@@ -76,14 +58,20 @@ export default class Servers {
     private generateResponse(code: number, data?: any): AppResponse {
         switch(code) {
             case 200:
-                return { status: 200, data }
+                return { status: 200, data };
+            case 204:
+                return { status: 204, data: {} }
+            case 400:
+                return { status: 400, error: { message: 'Invaild Section' } }
             case 401:
                 return { status: 401, error: { message: 'Incorrect API key' } }
+            case 403:
+                return { status: 403, error: { message: 'You do not have permission to access this server' } }
             case 404:
                 return { status: 404, error: { message: 'Server not found' } }
-            default:
-                return { status: code, error: { message: 'An unexpected error occured' }, data }
-        };
+            default: 
+                return { status: code, error: { message: 'An unexpected error occured' } }
+        }
     }
 
     /**
@@ -94,7 +82,7 @@ export default class Servers {
      */
     public async get(Id: string, filter: ServerFilter|number = 0): Promise<ServerResponse> {
         if(!Id) throw new Error("No server ID specified");
-        const response = await this.instance.get(`servers/${Id}?filter=${filter}`);
+        const response = await this.#instance.get(`servers/${Id}?filter=${filter}`);
         if(response.status == 200) this.server = Id;
         return this.generateServerResponse(response.status, response.data);
     }
@@ -109,14 +97,14 @@ export default class Servers {
         let response;
         if(!servers.length) throw new Error("No servers selected");
         if(typeof command[0] == "number") {
-            response = await this.instance.post(`servers/execute/action`, { serverIds: servers, action: command[0] });
+            response = await this.#instance.post(`servers/execute/action`, { serverIds: servers, action: command[0] });
             return this.generateResponse(response.status, response.data);
         }
         if(command.length == 1) {
-            response = await this.instance.post(`servers/execute/command`, { serverIds: servers, command: command[0] })
+            response = await this.#instance.post(`servers/execute/command`, { serverIds: servers, command: command[0] })
             return this.generateResponse(response.status, response.data);
         }
-        response = await this.instance.post(`servers/execute/commands`, { serverIds: servers, commands: command });
+        response = await this.#instance.post(`servers/execute/commands`, { serverIds: servers, commands: command });
         return this.generateResponse(response.status, response.data);
     }
 
@@ -126,7 +114,7 @@ export default class Servers {
      */
     private async getStats(): Promise<AppResponse> {
         if(!this.server) throw new Error("No server selected");
-        const response = await this.instance.get(`servers/${this.server}/stats`);
+        const response = await this.#instance.get(`servers/${this.server}/stats`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -136,7 +124,7 @@ export default class Servers {
      */
     private async getIcon(): Promise<AppResponse> {
         if(!this.server) throw new Error("No server selected");
-        const response = await this.instance.get(`servers/${this.server}/icon`);
+        const response = await this.#instance.get(`servers/${this.server}/icon`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -149,14 +137,14 @@ export default class Servers {
         let response;
         if(!this.server) throw new Error("No server selected");
         if(typeof command[0] == "number") {
-            response = await this.instance.post(`servers/${this.server}/execute/action`, { action: command[0] });
+            response = await this.#instance.post(`servers/${this.server}/execute/action`, { action: command[0] });
             return this.generateResponse(response.status, response.data);
         }
         if(command.length == 1) {
-            response = await this.instance.post(`servers/${this.server}/execute/command`, { command: command[0] })
+            response = await this.#instance.post(`servers/${this.server}/execute/command`, { command: command[0] })
             return this.generateResponse(response.status, response.data);
         }
-        response = await this.instance.post(`servers/${this.server}/execute/commands`, { commands: command });
+        response = await this.#instance.post(`servers/${this.server}/execute/commands`, { commands: command });
         return this.generateResponse(response.status, response.data);
     }
 
@@ -167,7 +155,7 @@ export default class Servers {
      */
     private async edit(obj: Server|object): Promise<AppResponse> {
         if(!this.server) throw new Error("No server selected");
-        const response = await this.instance.put(`servers/${this.server}`, obj);
+        const response = await this.#instance.put(`servers/${this.server}`, obj);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -180,7 +168,7 @@ export default class Servers {
      */
     private async getConsole(AmountOfLines: number = 5, Reversed: boolean = false, takeFromBeginning: boolean = false): Promise<AppResponse> {
         if(!this.server) throw new Error("No server selected");
-        const response = await this.instance.get(`servers/${this.server}/console`, { params: { AmountOfLines, Reversed, takeFromBeginning } });
+        const response = await this.#instance.get(`servers/${this.server}/console`, { params: { AmountOfLines, Reversed, takeFromBeginning } });
         return this.generateResponse(response.status, response.data);
     }
 
@@ -193,7 +181,7 @@ export default class Servers {
     private async isConsoleOutdated(secondLastLine: string, lastLine: string): Promise<AppResponse> {
         if(!this.server) throw new Error("No server selected");
         if(!secondLastLine || !lastLine) throw new Error("No second last line or last line specified");
-        const response = await this.instance.get(`servers/${this.server}/console/outdated${secondLastLine && lastLine ? `?secondLastLine=${secondLastLine}&lastLine=${lastLine}` : ''}`);
+        const response = await this.#instance.get(`servers/${this.server}/console/outdated${secondLastLine && lastLine ? `?secondLastLine=${secondLastLine}&lastLine=${lastLine}` : ''}`);
         return this.generateResponse(response.status, response.data);
     }
 

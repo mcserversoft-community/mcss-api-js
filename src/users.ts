@@ -1,21 +1,30 @@
-import Client, { AppResponse } from "./client";
+import { AxiosInstance } from "axios";
+
+import { AppResponse } from "./types";
 
 import User from "./builders/User";
 
 export default class Users {
-    instance: any;
-    constructor(obj: Client) {
-        this.instance = obj.instance; 
+    #instance: any;
+    constructor(instance: AxiosInstance) {
+        this.#instance = instance;
     }
+
     private generateResponse(code: number, data?: any): AppResponse {
         switch(code) {
             case 200:
                 return { status: 200, data };
+            case 204:
+                return { status: 204, data: {} }
+            case 400:
+                return { status: 400, error: { message: 'Invaild Section' } }
             case 401:
                 return { status: 401, error: { message: 'Incorrect API key' } }
+            case 403:
+                return { status: 403, error: { message: 'You do not have permission to access this server' } }
             case 404:
                 return { status: 404, error: { message: 'Server not found' } }
-            default:
+            default: 
                 return { status: code, error: { message: 'An unexpected error occured' } }
         }
     }
@@ -25,7 +34,7 @@ export default class Users {
      * @returns {Promise<AppResponse>}
      */
     public async get(): Promise<AppResponse> {
-        const response = await this.instance.get(`users`);
+        const response = await this.#instance.get(`users`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -35,7 +44,7 @@ export default class Users {
      * @returns {Promise<AppResponse>}
      */
     public async getUser(id: string): Promise<AppResponse> {
-        const response = await this.instance.get(`users/${id}`);
+        const response = await this.#instance.get(`users/${id}`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -45,7 +54,7 @@ export default class Users {
      * @returns {Promise<AppResponse>}
      */
     public async createUser(user: object | User): Promise<AppResponse> {
-        const response = await this.instance.post(`users`, user);
+        const response = await this.#instance.post(`users`, user);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -56,7 +65,7 @@ export default class Users {
      * @returns {Promise<AppResponse>}
      */
     public async updateUser(id: string, user: object | User): Promise<AppResponse> {
-        const response = await this.instance.put(`users/${id}`, user);
+        const response = await this.#instance.put(`users/${id}`, user);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -66,7 +75,7 @@ export default class Users {
      * @returns {Promise<AppResponse>}
      */
     public async deleteUser(id: string): Promise<AppResponse> {
-        const response = await this.instance.delete(`users/${id}`);
+        const response = await this.#instance.delete(`users/${id}`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -75,7 +84,7 @@ export default class Users {
      * @returns {Promise<AppResponse>}
      */
     public async wipeSessions(): Promise<AppResponse> {
-        const response = await this.instance.post(`users/wipe/sessions`);
+        const response = await this.#instance.post(`users/wipe/sessions`);
         return this.generateResponse(response.status, response.data);
     }
 

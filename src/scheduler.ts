@@ -1,7 +1,7 @@
-import { AppResponse } from "./client";
+import { AppResponse } from './types';
 
 import Task from "./builders/Task";
-import Servers from "./servers";
+import { AxiosInstance } from "axios";
 
 /**
  * @enum TaskFilter
@@ -15,25 +15,30 @@ export enum TaskFilter {
 }
 
 export default class Scheduler {
-    protected instance: any;
+    #instance: any;
     server: string | null;
-    constructor(obj: Servers) {
-        this.instance = obj.instance;
-        this.server = obj.server;
+    constructor(instance: AxiosInstance, serverId: string | null) {
+        this.#instance = instance;
+        this.server = serverId;
     }
+    
     private generateResponse(code: number, data?: any): AppResponse {
         switch(code) {
             case 200:
-                return { status: 200, data }
+                return { status: 200, data };
+            case 204:
+                return { status: 204, data: {} }
+            case 400:
+                return { status: 400, error: { message: 'Invaild Section' } }
             case 401:
                 return { status: 401, error: { message: 'Incorrect API key' } }
             case 403:
                 return { status: 403, error: { message: 'You do not have permission to access this server' } }
             case 404:
                 return { status: 404, error: { message: 'Server not found' } }
-            default:
+            default: 
                 return { status: code, error: { message: 'An unexpected error occured' } }
-        };
+        }
     }
 
     /**
@@ -41,7 +46,7 @@ export default class Scheduler {
      * @returns {Promise<AppResponse>}
      */
     public async get(): Promise<AppResponse> {
-        const response = await this.instance.get(`servers/${this.server}/scheduler`);
+        const response = await this.#instance.get(`servers/${this.server}/scheduler`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -51,7 +56,7 @@ export default class Scheduler {
      * @returns {Promise<AppResponse>}
      */
     public async getTasks(filter: TaskFilter|number = 0): Promise<AppResponse> {
-        const response = await this.instance.get(`servers/${this.server}/scheduler/tasks${filter ? `?filter=${filter}` : ''}`);
+        const response = await this.#instance.get(`servers/${this.server}/scheduler/tasks${filter ? `?filter=${filter}` : ''}`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -61,7 +66,7 @@ export default class Scheduler {
      * @returns {Promise<AppResponse>}
      */
     public async getTask(Id: string): Promise<AppResponse> {
-        const response = await this.instance.get(`servers/${this.server}/scheduler/tasks/${Id}`);
+        const response = await this.#instance.get(`servers/${this.server}/scheduler/tasks/${Id}`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -71,7 +76,7 @@ export default class Scheduler {
      * @returns {Promise<AppResponse>}
      */
     public async create(data: any | Task): Promise<AppResponse> {
-        const response = await this.instance.post(`servers/${this.server}/scheduler/tasks`, data);
+        const response = await this.#instance.post(`servers/${this.server}/scheduler/tasks`, data);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -82,7 +87,7 @@ export default class Scheduler {
      * @returns {Promise<AppResponse>}
      */
     public async update(Id: string, data: any | Task): Promise<AppResponse> {
-        const response = await this.instance.put(`servers/${this.server}/scheduler/tasks/${Id}`, data);
+        const response = await this.#instance.put(`servers/${this.server}/scheduler/tasks/${Id}`, data);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -92,7 +97,7 @@ export default class Scheduler {
      * @returns {Promise<AppResponse>}
      */
     public async delete(Id: string): Promise<AppResponse> {
-        const response = await this.instance.delete(`servers/${this.server}/scheduler/tasks/${Id}`);
+        const response = await this.#instance.delete(`servers/${this.server}/scheduler/tasks/${Id}`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -102,7 +107,7 @@ export default class Scheduler {
      * @returns {Promise<AppResponse>}
      */
     public async run(Id: string): Promise<AppResponse> {
-        const response = await this.instance.post(`servers/${this.server}/scheduler/tasks/${Id}/`);
+        const response = await this.#instance.post(`servers/${this.server}/scheduler/tasks/${Id}/`);
         return this.generateResponse(response.status, response.data);
     }
 

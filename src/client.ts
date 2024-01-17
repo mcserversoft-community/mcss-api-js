@@ -1,19 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 
+import { AppResponse } from './types';
+
 import Server from './servers';
 import Users from './users';
-
-/**
- * @interface AppResponse
- * @description The response from the API
- */
-export type AppResponse = {
-    status: number
-    data?: any
-    error?: {
-        message: string
-    }
-}
 
 /**
  * @enum ServerFilter
@@ -54,34 +44,30 @@ export enum ServerType {
 }
 
 export default class Client {
-    instance: AxiosInstance;
-    ip: string;
-    port: string | number | null;
-    apiKey: string;
-    https: boolean;
-    url: string;
+    #instance: AxiosInstance;
+    #ip: string;
+    #port: string | number | null;
+    #https: boolean;
     servers: Server;
     users: Users;
     constructor(ip: string, port: string|number|null, apiKey: string, https: boolean = true) {
 
         if(!ip || !port || !apiKey) throw new Error("Missing parameters");
 
-        this.ip = ip;
-        this.port = port;
-        this.apiKey = apiKey;
-        this.https = https;
-        this.url = `${https ? "https" : "http"}://${ip}:${port ? port : ""}/api/v2/`;
+        this.#ip = ip;
+        this.#port = port;
+        this.#https = https;
 
-        this.instance = axios.create({
+        this.#instance = axios.create({
             validateStatus: () => true,
-            baseURL: this.url,
+            baseURL: `${https ? "https" : "http"}://${ip}:${port ? port : ""}/api/v2/`,
             headers: {
                 apiKey
             }
         });
 
-        this.servers = new Server(this);
-        this.users = new Users(this);
+        this.servers = new Server(this.#instance);
+        this.users = new Users(this.#instance);
 
     }
     
@@ -109,7 +95,7 @@ export default class Client {
      * @returns {Promise<AppResponse>}
      */
     public async getStats(): Promise<AppResponse> {
-        const response = await this.instance.get("/");
+        const response = await this.#instance.get("/");
         return this.generateResponse(response.status, response.data);
     }
 
@@ -119,7 +105,7 @@ export default class Client {
      * @returns {Promise<AppResponse>}
      */
     public async getServers(filter: ServerFilter|number = 0): Promise<AppResponse> {
-        const response = await this.instance.get(`servers?filter=${filter}`);
+        const response = await this.#instance.get(`servers?filter=${filter}`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -131,7 +117,7 @@ export default class Client {
      */
     public async getServerCount(filter: ServerCountFilter|number = 0, serverType: ServerType|string): Promise<AppResponse> {
         if(filter === ServerCountFilter.BYSERVERTYPE && !serverType) throw new Error("Missing serverType parameter");
-        const response = await this.instance.get(`servers/count?filter=${filter}${serverType ? `&serverType=${serverType}` : ""}`);
+        const response = await this.#instance.get(`servers/count?filter=${filter}${serverType ? `&serverType=${serverType}` : ""}`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -140,7 +126,7 @@ export default class Client {
      * @returns {Promise<AppResponse>}
      */
     public async getSettings(): Promise<AppResponse> {
-        const response = await this.instance.get(`mcss/settings/All`);
+        const response = await this.#instance.get(`mcss/settings/All`);
         return this.generateResponse(response.status, response.data);
     }
 
@@ -154,8 +140,41 @@ export default class Client {
         const settings = {
             deleteOldBackupsThreshold
         }
-        const response = await this.instance.patch(`mcss/settings`, settings);
+        const response = await this.#instance.patch(`mcss/settings`, settings);
         return this.generateResponse(response.status, response.data);
+    }
+
+    /**
+     * @description Sets the API key
+     * @returns {void}
+     */
+    public setApiKey(apiKey: string): void { this.#instance.defaults.headers.apiKey = apiKey; }
+
+    /**
+     * @description Sets the IP
+     * @returns {void}
+     */
+    public setIp(ip: string): void {
+        this.#ip = ip;
+        this.#instance.defaults.baseURL = `${this.#https ? "https" : "http"}://${ip}:${this.#port ? this.#port : ""}/api/v2/`;
+    }
+
+    /**
+     * @description Sets the Port
+     * @returns {void}
+     */
+    public setPort(port: string|number): void {
+        this.#port = port;
+        this.#instance.defaults.baseURL = `${this.#https ? "https" : "http"}://${this.#ip}:${port ? port : ""}/api/v2/`;
+    }
+
+    /**
+     * @description Sets the Http protocol
+     * @returns {void}
+     */
+    public setHttps(https: boolean): void {
+        this.#https = https;
+        this.#instance.defaults.baseURL = `${https ? "https" : "http"}://${this.#ip}:${this.#port ? this.#port : ""}/api/v2/`;
     }
 
 }
