@@ -2,12 +2,14 @@ import axios, { AxiosInstance } from 'axios';
 
 import { AppResponse } from './types';
 
-import Server from './servers';
+import Servers, { ServerObject } from './servers';
 import Users from './users';
+import Webhooks from './webhooks';
+import APIKeys from './keys';
 
 /**
  * @enum ServerFilter
- * @description The filter to use when getting servers
+ *   The filter to use when getting servers
  */
 export enum ServerFilter {
     NONE = 0,
@@ -17,7 +19,7 @@ export enum ServerFilter {
 
 /**
  * @enum ServerCountFilter
- * @description The filter to use when getting server count
+ *   The filter to use when getting server count
  */
 export enum ServerCountFilter {
     NONE = 0,
@@ -28,7 +30,7 @@ export enum ServerCountFilter {
 
 /**
  * @enum ServerType
- * @description The server type to use when getting server count
+ *   The server type to use when getting server count
  */
 export enum ServerType {
     VANILLA = "349bf6c7-2d19-4e42-bcee-592fa862bcee",
@@ -43,13 +45,42 @@ export enum ServerType {
     PURPUR = "984ed3d3-636d-4535-82b2-7c1048782c64"
 }
 
+
+/**
+ * @class Client
+ * The main class for interacting with the MCSS API
+ * @example
+ * ```js
+ * const client = new Client("127.0.0.1", 8080, "API_KEY", true);
+ * ```
+ */
+
 export default class Client {
     #instance: AxiosInstance;
     #ip: string;
     #port: string | number | null;
     #https: boolean;
-    servers: Server;
+
+    /**
+     * The server class
+     * @type {Servers}
+     */
+    servers: Servers;
+
+    /**
+     * The users class
+     * @type {Users}
+     */
     users: Users;
+
+    /**
+     * The webhooks class
+     * @type {Webhooks}
+     */
+    webhooks: Webhooks;
+
+    apikeys: APIKeys;
+
     constructor(ip: string, port: string|number|null, apiKey: string, https: boolean = true) {
 
         if(!ip || !port || !apiKey) throw new Error("Missing parameters");
@@ -66,9 +97,10 @@ export default class Client {
             }
         });
 
-        this.servers = new Server(this.#instance);
+        this.servers = new Servers(this.#instance);
         this.users = new Users(this.#instance);
-
+        this.webhooks = new Webhooks(this.#instance);
+        this.apikeys = new APIKeys(this.#instance);
     }
     
     private generateResponse(code: number, data?: any): AppResponse {
@@ -91,7 +123,7 @@ export default class Client {
     }
 
     /**
-     * @description Get the stats of the panel
+     * Get the stats of the panel
      * @returns {Promise<AppResponse>}
      */
     public async getStats(): Promise<AppResponse> {
@@ -100,17 +132,19 @@ export default class Client {
     }
 
     /**
-     * @description Get all servers
+     * Get all servers
      * @param {ServerFilter|number} filter - The filter to use
-     * @returns {Promise<AppResponse>}
+     * @returns {Promise<ServerObject[]|AppResponse>}
      */
-    public async getServers(filter: ServerFilter|number = 0): Promise<AppResponse> {
+    public async getServers(filter: ServerFilter|number = 0): Promise<ServerObject[]|AppResponse> {
         const response = await this.#instance.get(`servers?filter=${filter}`);
-        return this.generateResponse(response.status, response.data);
+        let appResponse = this.generateResponse(response.status, response.data);
+        if(appResponse.status === 200) return appResponse.data?.map((server: any) => new ServerObject(this.#instance, 200, server));
+        return appResponse;
     }
 
     /**
-     * @description Get a server by id
+     * Get a server by id
      * @param {ServerCountFilter|number} filter - The filter to use
      * @param {ServerType|string} serverType - The server type to use
      * @returns {Promise<AppResponse>}
@@ -122,7 +156,7 @@ export default class Client {
     }
 
     /**
-     * @description Set MCSS settings
+     * Set MCSS settings
      * @returns {Promise<AppResponse>}
      */
     public async getSettings(): Promise<AppResponse> {
@@ -131,7 +165,7 @@ export default class Client {
     }
 
     /**
-     * @description Update the MCSS settings
+     * Update the MCSS settings
      * @param {number} deleteOldBackupsThreshold - The number of backups to keep
      * @returns {Promise<AppResponse>}
      */
@@ -145,13 +179,13 @@ export default class Client {
     }
 
     /**
-     * @description Sets the API key
+     * Sets the API key
      * @returns {void}
      */
     public setApiKey(apiKey: string): void { this.#instance.defaults.headers.apiKey = apiKey; }
 
     /**
-     * @description Sets the IP
+     * Sets the IP
      * @returns {void}
      */
     public setIp(ip: string): void {
@@ -160,7 +194,7 @@ export default class Client {
     }
 
     /**
-     * @description Sets the Port
+     * Sets the Port
      * @returns {void}
      */
     public setPort(port: string|number): void {
@@ -169,7 +203,7 @@ export default class Client {
     }
 
     /**
-     * @description Sets the Http protocol
+     * Sets the Http protocol
      * @returns {void}
      */
     public setHttps(https: boolean): void {

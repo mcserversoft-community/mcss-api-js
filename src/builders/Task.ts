@@ -22,49 +22,49 @@ export default class Task {
 
 
     /**
-     * @description Get the name
+     *   Get the name
      * @returns {string}
      */
     public getName(): string { return this.name; }
 
     /**
-     * @description Set the name
+     *   Set the name
      * @param {string} name - The name
      */
     public setName(name: string): void { this.name = name; }
 
     /**
-     * @description Get the enabled status
+     *   Get the enabled status
      * @returns {boolean}
      */
     public getEnabled(): boolean { return this.enabled; }
 
     /**
-     * @description Set the enabled status
+     *   Set the enabled status
      * @param {boolean} enabled - The enabled status
      */
     public setEnabled(enabled: boolean): Task { this.enabled = enabled; return this; }
 
     /**
-     * @description Get the player requirement
+     *   Get the player requirement
      * @returns {number}
      */
     public getPlayerRequirement(): number { return this.playerRequirement; }
 
     /**
-     * @description Set the player requirement
+     *   Set the player requirement
      * @param {number} playerRequirement - The player requirement
      */
     public setPlayerRequirement(playerRequirement: number): Task { this.playerRequirement = playerRequirement; return this; }
 
     /**
-     * @description Get the timing
+     *   Get the timing
      * @returns {object}
      */
     public getTiming(): object | null { return this.timing; }
 
     /**
-     * @description Set the timing
+     *   Set the timing
      * @param {object|boolean} timing - The timing
      * @param {number} interval - The interval
      */
@@ -78,13 +78,13 @@ export default class Task {
     }
 
     /**
-     * @description Get the job
+     *   Get the job
      * @returns {object}
      */
     public getJob(): object | null { return this.job; }
 
     /**
-     * @description Set the job
+     *   Set the job
      * @param {object|ServerAction|string[]} action - The job
      */
     public addJob(action: object | ServerAction | string[]): Task {
@@ -101,7 +101,7 @@ export default class Task {
     }
 
     /**
-     * @description Convert the task to JSON
+     *   Convert the task to JSON
      * @returns {object}
      */
     public toJSON(): object {

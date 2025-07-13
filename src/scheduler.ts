@@ -5,7 +5,7 @@ import { AxiosInstance } from "axios";
 
 /**
  * @enum TaskFilter
- * @description The scheduler response object
+ *   The scheduler response object
  */
 export enum TaskFilter {
     None = 0,
@@ -42,7 +42,7 @@ export default class Scheduler {
     }
 
     /**
-     * @description Get the current scheduler status
+     *   Get the current scheduler status
      * @returns {Promise<AppResponse>}
      */
     public async get(): Promise<AppResponse> {
@@ -51,7 +51,7 @@ export default class Scheduler {
     }
 
     /**
-     * @description Get all tasks
+     *   Get all tasks
      * @param {TaskFilter|number} filter - The filter to apply
      * @returns {Promise<AppResponse>}
      */
@@ -61,7 +61,7 @@ export default class Scheduler {
     }
 
     /**
-     * @description Get a specific task
+     *   Get a specific task
      * @param {string} Id - The task ID
      * @returns {Promise<AppResponse>}
      */
@@ -71,7 +71,7 @@ export default class Scheduler {
     }
 
     /**
-     * @description Create a new task
+     *   Create a new task
      * @param {Task} data - The task data
      * @returns {Promise<AppResponse>}
      */
@@ -81,7 +81,7 @@ export default class Scheduler {
     }
 
     /**
-     * @description Update a task
+     *   Update a task
      * @param {string} Id - The task ID
      * @param {Task} data - The task data
      * @returns {Promise<AppResponse>}
@@ -92,7 +92,7 @@ export default class Scheduler {
     }
 
     /**
-     * @description Delete a task
+     *   Delete a task
      * @param {string} Id - The task ID
      * @returns {Promise<AppResponse>}
      */
@@ -102,7 +102,7 @@ export default class Scheduler {
     }
 
     /**
-     * @description Execute a task
+     *   Execute a task
      * @param {string} Id - The task ID
      * @returns {Promise<AppResponse>}
      */

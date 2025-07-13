@@ -1,10 +1,7 @@
-import Scheduler from "../scheduler";
-import Backups from "../backups";
-import Server from "../builders/Server";
 
 /**
  * @interface AppResponse
- * @description The response from the API
+ *   The response from the API
  */
 export type AppResponse = {
     status: number
@@ -15,28 +12,8 @@ export type AppResponse = {
 }
 
 /**
- * @interface ServerResponse
- * @description The server response object
- */
-export type ServerResponse = {
-    status: number
-    data?: any
-    error?: {
-        message: string
-    }
-    getStats?: () => Promise<AppResponse>
-    getIcon?: () => Promise<AppResponse>
-    execute?: (...command: any) => Promise<AppResponse>
-    edit?: (obj: Server|object) => Promise<AppResponse>
-    getConsole?: (AmountOfLines?: number, Reversed?: boolean, takeFromBeginning?: boolean) => Promise<AppResponse>
-    isConsoleOutdated?: () => Promise<AppResponse>
-    scheduler?: Scheduler
-    backups?: Backups
-}
-
-/**
  * @enum ServerFilter
- * @description The filter to use when getting servers
+ *   The filter to use when getting servers
  */
 export enum ServerFilter {
     NONE = 0,
@@ -46,7 +23,7 @@ export enum ServerFilter {
 
 /**
  * @enum ServerCountFilter
- * @description The filter to use when getting server count
+ *   The filter to use when getting server count
  */
 export enum ServerCountFilter {
     NONE = 0,
@@ -57,7 +34,7 @@ export enum ServerCountFilter {
 
 /**
  * @enum ServerType
- * @description The server type to use when getting server count
+ *   The server type to use when getting server count
  */
 export enum ServerType {
     VANILLA = "349bf6c7-2d19-4e42-bcee-592fa862bcee",
@@ -74,7 +51,7 @@ export enum ServerType {
 
 /**
  * @enum TaskFilter
- * @description The scheduler response object
+ *   The scheduler response object
  */
 export enum TaskFilter {
     None = 0,
@@ -85,7 +62,7 @@ export enum TaskFilter {
 
 /**
  * @enum ServerAction
- * @description The server action enum
+ *   The server action enum
  */
 export enum ServerAction {
     InvalidOrEmpty = 0,
@@ -94,3 +71,4 @@ export enum ServerAction {
     Kill = 3,
     Restart = 4,
 }
+

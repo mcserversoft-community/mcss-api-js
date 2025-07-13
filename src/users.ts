@@ -30,7 +30,7 @@ export default class Users {
     }
 
     /**
-     * @description Get all users
+     *   Get all users
      * @returns {Promise<AppResponse>}
      */
     public async get(): Promise<AppResponse> {
@@ -39,7 +39,7 @@ export default class Users {
     }
 
     /**
-     * @description Get a specific user
+     *   Get a specific user
      * @param {string} id - The user ID
      * @returns {Promise<AppResponse>}
      */
@@ -49,7 +49,7 @@ export default class Users {
     }
 
     /**
-     * @description Create a new user
+     *   Create a new user
      * @param {object|User} user - The user data
      * @returns {Promise<AppResponse>}
      */
@@ -59,7 +59,7 @@ export default class Users {
     }
 
     /**
-     * @description Update a user
+     *   Update a user
      * @param {string} id - The user ID
      * @param {object|User} user - The user data
      * @returns {Promise<AppResponse>}
@@ -70,7 +70,7 @@ export default class Users {
     }
 
     /**
-     * @description Delete a user
+     *   Delete a user
      * @param {string} id - The user ID
      * @returns {Promise<AppResponse>}
      */
@@ -80,7 +80,7 @@ export default class Users {
     }
 
     /**
-     * @description Get all permissions
+     *   Get all permissions
      * @returns {Promise<AppResponse>}
      */
     public async wipeSessions(): Promise<AppResponse> {

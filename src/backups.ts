@@ -32,7 +32,7 @@ export default class Backups {
     }
 
     /**
-     * @description Get all backups
+     *   Get all backups
      * @returns {Promise<AppResponse>}
      */
     public async get(): Promise<AppResponse> {
@@ -41,7 +41,7 @@ export default class Backups {
     }
 
     /**
-     * @description Get backup stats
+     *   Get backup stats
      * @returns {Promise<AppResponse>}
      */
     public async getStats(): Promise<AppResponse> {
@@ -50,7 +50,7 @@ export default class Backups {
     }
 
     /**
-     * @description Get a specific backup
+     *   Get a specific backup
      * @param {string} backup - The backup ID
      * @returns {Promise<AppResponse>}
      */
@@ -60,7 +60,7 @@ export default class Backups {
     }
 
     /**
-     * @description Create a new backup
+     *   Create a new backup
      * @param {Backup} data - The backup data
      * @returns {Promise<AppResponse>}
      */
@@ -71,7 +71,7 @@ export default class Backups {
     }
 
     /**
-     * @description Update a backup
+     *   Update a backup
      * @param {string} backup - The backup ID
      * @param {Backup} data - The backup data
      * @returns {Promise<AppResponse>}
@@ -82,7 +82,7 @@ export default class Backups {
     }
 
     /**
-     * @description Delete a backup
+     *   Delete a backup
      * @param {string} backup - The backup ID
      * @returns {Promise<AppResponse>}
      */
@@ -92,7 +92,7 @@ export default class Backups {
     }
 
     /**
-     * @description Run a backup
+     *   Run a backup
      * @param {string} backup - The backup ID
      * @returns {Promise<AppResponse>}
      */
@@ -102,7 +102,7 @@ export default class Backups {
     }
 
     /**
-     * @description Gets server backup history
+     *   Gets server backup history
      * @returns {Promise<AppResponse>}
      */
     public async getHistory(): Promise<AppResponse> {
@@ -111,7 +111,7 @@ export default class Backups {
     }
 
     /**
-     * @description Clears server backup history
+     *   Clears server backup history
      * @returns {Promise<AppResponse>}
      */
     public async clearHistory(): Promise<AppResponse> {

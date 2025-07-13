@@ -1,6 +1,6 @@
 
 /**
- * @description The permissions
+ *   The permissions
  */
 export enum Permissions {
     viewStats = "viewStats",
@@ -47,78 +47,78 @@ export default class User {
     }
 
     /**
-     * @description Get the username
+     *   Get the username
      * @returns {string}
      */
     public getUsername(): string { return this.username; }
 
     /**
-     * @description Get the password
+     *   Get the password
      * @returns {string}
      */
     public getPassword(): string { return this.password; }
 
     /**
-     * @description Get the enabled status
+     *   Get the enabled status
      * @returns {boolean}
      */
     public getEnabled(): boolean { return this.enabled; }
 
     /**
-     * @description Get the isAdmin status
+     *   Get the isAdmin status
      * @returns {boolean}
      */
     public getIsAdmin(): boolean { return this.isAdmin; }
 
     /**
-     * @description Get the hasAccessToAllServers status
+     *   Get the hasAccessToAllServers status
      * @returns {boolean}
      */
     public HasAccessToAllServers(): boolean { return this.hasAccessToAllServers; }
 
     /**
-     * @description Get the customServerPermissions
+     *   Get the customServerPermissions
      * @returns {object[]}
      */
     public getCustomServerPermissions(): object[] | null { return this.customServerPermissions; }
 
     /**
-     * @description Set the username
+     *   Set the username
      * @param {string} username - The username
      * @returns {User}
      */
     public setUsername(username: string): User { this.username = username; return this; }
 
     /**
-     * @description Set the password
+     *   Set the password
      * @param {string} password - The password
      * @returns {User}
      */
     public setPassword(password: string): User { this.password = password; return this; }
 
     /**
-     * @description Set the enabled status
+     *   Set the enabled status
      * @param {boolean} enabled - The enabled status
      * @returns {User}
      */
     public setEnabled(enabled: boolean): User { this.enabled = enabled; return this; }
 
     /**
-     * @description Set the isAdmin status
+     *   Set the isAdmin status
      * @param {boolean} isAdmin - The isAdmin status
      * @returns {User}
      */
     public setIsAdmin(isAdmin: boolean): User { this.isAdmin = isAdmin; return this; }
 
     /**
-     * @description Set the hasAccessToAllServers status
+     *   Set the hasAccessToAllServers status
      * @param {boolean} hasAccessToAllServers - The hasAccessToAllServers status
      * @returns {User}
      */
     public setHasAccessToAllServers(hasAccessToAllServers: boolean): User { this.hasAccessToAllServers = hasAccessToAllServers; return this; }
     
     /**
-     * @description Set the customServerPermissions
+     *   Set the customServerPermissions
      * @param {object[]} customServerPermissions - The customServerPermissions
      * @returns {User}
      */
@@ -128,7 +128,7 @@ export default class User {
     } 
 
     /**
-     * @description Add a custom server permission
+     *   Add a custom server permission
      * @param {string} serverId - The server ID
      * @param {Permissions|string} permissions - The permissions
      * @param {boolean} value - The value
@@ -141,7 +141,7 @@ export default class User {
     }
 
     /**
-     * @description Remove a custom server permission
+     *   Remove a custom server permission
      * @param {string} serverId - The server ID
      * @returns {User}
      */
@@ -152,7 +152,7 @@ export default class User {
     }
 
     /**
-     * @description Convert the user to JSON
+     *   Convert the user to JSON
      * @returns {object}
      */
     public toJSON(): object {
