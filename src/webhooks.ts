@@ -1,18 +1,7 @@
 import { AxiosInstance } from "axios";
 
 import { AppResponse } from "./types";
-
-/**
- * @enum WebhookTrigger
- *  The webhook trigger to use when creating or editing a webhook
- */ 
-export enum WebhookTrigger {
-    ALL = "All",
-    SERVER_CREATED = "ServerCreated",
-    SERVEREDITED = "ServerEdited",
-    SERVERDELETED = "ServerDeleted",
-    SERVERSTATUSCHANGED = "ServerStatusChanged"
-}
+import Webhook from "./builders/Webhook";
 
 export default class Webhooks {
     #instance: any;
@@ -41,21 +30,11 @@ export default class Webhooks {
 
     /**
      * Create a webhook
-     * @param {string} name The name of the webhook
-     * @param {string} url The URL to send the webhook to
-     * @param {number} messageFormat The format of the message to send (0 = JSON, 1 = XML)
-     * @param {WebhookTrigger[]} webhookTriggers The triggers for the webhook
-     * @param {Object[]} optionalHeaders Optional headers to include in the webhook request
+     * @param {Webhook} webhook The webhook to create
      * @returns {Promise<AppResponse>} The response from the API
      */
-    async create(name: string, url: string, messageFormat: number = 0, webhookTriggers: WebhookTrigger[] = [WebhookTrigger.ALL], optionalHeaders: Object[]): Promise<AppResponse> {
-        const response = await this.#instance.post(`webhooks`, {
-            name,
-            url,
-            messageFormat,
-            webhookTriggers,
-            optionalHeaders
-        });
+    async create(webhook: Webhook): Promise<AppResponse> {
+        const response = await this.#instance.post(`webhooks`, webhook.toJSON());
         return this.generateResponse(response.status, response.data);
     }
 
@@ -72,21 +51,11 @@ export default class Webhooks {
     /**
      * Edit a webhook
      * @param {string} webhookId The ID of the webhook to edit
-     * @param {string} name The new name of the webhook
-     * @param {string} url The new URL to send the webhook to
-     * @param {number} messageFormat The new format of the message to send (0 = JSON, 1 = XML)
-     * @param {WebhookTrigger[]} webhookTriggers The new triggers for the webhook
-     * @param {Object[]} optionalHeaders Optional headers to include in the webhook request
+     * @param {Webhook} webhook The webhook to edit
      * @returns {Promise<AppResponse>} The response from the API
      */
-    async edit(webhookId: string, name: string, url: string, messageFormat: number = 0, webhookTriggers: WebhookTrigger[] = [WebhookTrigger.ALL], optionalHeaders: Object[]): Promise<AppResponse> {
-        const response = await this.#instance.put(`webhooks/${webhookId}`, {
-            name,
-            url,
-            messageFormat,
-            webhookTriggers,
-            optionalHeaders
-        });
+    async edit(webhookId: string, webhook: Webhook): Promise<AppResponse> {
+        const response = await this.#instance.put(`webhooks/${webhookId}`, webhook.toJSON());
         return this.generateResponse(response.status, response.data);
     }
 
