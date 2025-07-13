@@ -1,19 +1,31 @@
 # MCSS API JS
 
-[![npm version](https://badge.fury.io/js/%40mcserversoft%2Fmcss-api.svg)](https://badge.fury.io/js/%40mcserversoft%2Fmcss-api)
+<div align="center">
+
+[![npm version](https://img.shields.io/npm/v/@mcserversoft/mcss-api)](https://www.npmjs.com/package/@mcserversoft/mcss-api)
+[![Downloads](https://img.shields.io/npm/dt/@mcserversoft/mcss-api.svg)](https://www.npmjs.com/package/@mcserversoft/mcss-api)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+[![Documentation](https://img.shields.io/badge/docs-typedoc-blue.svg)](https://mcserversoft-community.github.io/mcss-api-js/)
 
-A simple JavaScript/TypeScript package to interact with the [MCSS-API](https://github.com/mcserversoft/mcss).
+</div>
 
-## Installation
+A powerful and easy-to-use JavaScript/TypeScript package to interact with the [MCSS (MC Server Soft) API](https://www.mcserversoft.com/). This library provides a complete interface for managing Minecraft servers, users, backups, scheduled tasks, API keys, and webhooks.
 
-You can install the package using npm:
+## 📦 Installation
+
+You can install the package using your preferred package manager:
 
 ```bash
+# Using npm
 npm install @mcserversoft/mcss-api
+# Using pnpm
+pnpm add @mcserversoft/mcss-api
+# Using bun
+bun install @mcserversoft/mcss-api
 ```
 
-## Usage
+## 🚀 Quick Start
 
 First, you need to create a new `Client` instance:
 
@@ -23,14 +35,17 @@ import { Client } from '@mcserversoft/mcss-api';
 const client = new Client("127.0.0.1", 8080, "YOUR_API_KEY", true);
 ```
 
-### Get all servers
+### 🎮 Server Management
+
+#### Get all servers
 
 ```javascript
 async function getServers() {
     const servers = await client.getServers();
     if (Array.isArray(servers)) {
         servers.forEach(server => {
-            console.log(server.name);
+            console.log(`Server: ${server.name} (${server.status})`);
+            console.log(`Players: ${server.players}/${server.maxPlayers}`);
         });
     }
 }
@@ -38,50 +53,62 @@ async function getServers() {
 getServers();
 ```
 
-### Get a specific server
+#### Get a specific server
 
 ```javascript
 async function getServer() {
-    const server = await client.servers.get("YOUR_SERVER_ID");
-    if (server.statusCode === 200) {
-        console.log(server.name);
+    const response = await client.servers.get("YOUR_SERVER_ID");
+    if (response.status === 200) {
+        console.log(`Server data:`, response.data);
     }
 }
 
 getServer();
 ```
 
-### Interact with a server
-
-Once you have a server object, you can interact with it.
+#### Control server operations
 
 ```javascript
 import { ServerAction } from '@mcserversoft/mcss-api';
 
 async function manageServer() {
-    const server = await client.servers.get("YOUR_SERVER_ID");
-    if (server.statusCode === 200) {
+    // First get all servers to find the one we want
+    const servers = await client.getServers();
+    if (Array.isArray(servers) && servers.length > 0) {
+        const server = servers[0]; // Use the first server as example
+        
         // Start the server
-        await server.execute(ServerAction.Start);
+        const startResult = await server.execute(ServerAction.Start);
+        console.log('Start result:', startResult.status);
 
         // Send a command
-        await server.execute("say Hello from the API!");
+        const commandResult = await server.execute("say Hello from the API!");
+        console.log('Command result:', commandResult.status);
 
         // Stop the server
-        await server.execute(ServerAction.Stop);
+        const stopResult = await server.execute(ServerAction.Stop);
+        console.log('Stop result:', stopResult.status);
     }
 }
 
 manageServer();
 ```
 
-### Manage Users
+### 👥 User Management
 
 ```javascript
 async function manageUsers() {
     // Get all users
-    const users = await client.users.get();
-    console.log(users.data);
+    const usersResponse = await client.users.get();
+    if (usersResponse.status === 200) {
+        console.log('Users:', usersResponse.data);
+    }
+
+    // Get a specific user
+    const userResponse = await client.users.getUser("USER_ID");
+    if (userResponse.status === 200) {
+        console.log('User:', userResponse.data);
+    }
 
     // Create a new user
     const newUser = {
@@ -91,59 +118,84 @@ async function manageUsers() {
         role: "user"
     };
     const createdUser = await client.users.createUser(newUser);
-    console.log(createdUser.data);
+    if (createdUser.status === 200) {
+        console.log('User created:', createdUser.data);
+    }
 }
 
 manageUsers();
 ```
 
-### Manage Backups
+### 💾 Backup Management
 
 ```javascript
 async function manageBackups() {
-    const server = await client.servers.get("YOUR_SERVER_ID");
-    if (server.statusCode === 200) {
+    // First get all servers to find the one we want
+    const servers = await client.getServers();
+    if (Array.isArray(servers) && servers.length > 0) {
+        const serverId = servers[0].id; // Use the first server's ID
+        
         // Get all backups for a server
-        const backups = await server.backups.get();
-        console.log(backups.data);
+        const backupsResponse = await servers[0].backups.get();
+        if (backupsResponse.status === 200) {
+            console.log('Backups:', backupsResponse.data);
+        }
 
         // Create a new backup
         const newBackup = {
             name: "My Backup",
             destination: "local"
         };
-        const createdBackup = await server.backups.create(newBackup);
-        console.log(createdBackup.data);
+        const createdBackup = await servers[0].backups.create(newBackup);
+        if (createdBackup.status === 200) {
+            console.log('Backup created:', createdBackup.data);
+        }
     }
 }
 
 manageBackups();
 ```
 
-### Manage Scheduled Tasks
+### ⏰ Scheduled Tasks
 
 ```javascript
 async function manageTasks() {
-    const server = await client.servers.get("YOUR_SERVER_ID");
-    if (server.statusCode === 200) {
+    // First get all servers to find the one we want
+    const servers = await client.getServers();
+    if (Array.isArray(servers) && servers.length > 0) {
         // Get all tasks for a server
-        const tasks = await server.scheduler.getTasks();
-        console.log(tasks.data);
+        const tasksResponse = await servers[0].scheduler.getTasks();
+        if (tasksResponse.status === 200) {
+            console.log('Tasks:', tasksResponse.data);
+        }
+
+        // Create a new scheduled task
+        const newTask = {
+            name: "Daily Restart",
+            action: "restart",
+            schedule: "0 6 * * *" // Daily at 6 AM
+        };
+        const createdTask = await servers[0].scheduler.create(newTask);
+        if (createdTask.status === 200) {
+            console.log('Task created:', createdTask.data);
+        }
     }
 }
 
 manageTasks();
 ```
 
-### Manage API Keys
+### 🔑 API Key Management
 
 ```javascript
 import { Key, ServerPermissions } from '@mcserversoft/mcss-api';
 
 async function manageApiKeys() {
     // Get all API keys
-    const keys = await client.apikeys.get();
-    console.log(keys.data);
+    const keysResponse = await client.apikeys.get();
+    if (keysResponse.status === 200) {
+        console.log('API Keys:', keysResponse.data);
+    }
 
     // Create a new API key
     const newKey = new Key(
@@ -156,21 +208,25 @@ async function manageApiKeys() {
         ]
     );
     const createdKey = await client.apikeys.create(newKey);
-    console.log(createdKey.data);
+    if (createdKey.status === 200) {
+        console.log('API Key created:', createdKey.data);
+    }
 }
 
 manageApiKeys();
 ```
 
-### Manage Webhooks
+### 🪝 Webhook Management
 
 ```javascript
 import { WebhookTrigger } from '@mcserversoft/mcss-api';
 
 async function manageWebhooks() {
     // Get all webhooks
-    const webhooks = await client.webhooks.get();
-    console.log(webhooks.data);
+    const webhooksResponse = await client.webhooks.get();
+    if (webhooksResponse.status === 200) {
+        console.log('Webhooks:', webhooksResponse.data);
+    }
 
     // Create a new webhook
     const createdWebhook = await client.webhooks.create(
@@ -179,26 +235,73 @@ async function manageWebhooks() {
         0,
         [WebhookTrigger.SERVER_STATUS_CHANGED]
     );
-    console.log(createdWebhook.data);
+    if (createdWebhook.status === 200) {
+        console.log('Webhook created:', createdWebhook.data);
+    }
 }
 
 manageWebhooks();
 ```
 
-## API Documentation
+## 📚 API Documentation
 
-For more detailed information about the API, please refer to the [TypeDoc documentation](https://mcserversoft-community.github.io/mcss-api-js/).
+For comprehensive API documentation with detailed examples, type definitions, and method signatures, visit our [TypeDoc documentation](https://mcserversoft-community.github.io/mcss-api-js/).
 
-To generate the documentation locally, run the following command:
+### 🔧 Generate Documentation Locally
+
+To generate the documentation locally, run:
 
 ```bash
 npm run docs
 ```
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/mcserversoft-community/mcss-api-js).
+We welcome contributions! Here's how you can help:
 
-## License
+1. 🍴 **Fork** the repository
+2. 🌿 **Create** your feature branch (`git checkout -b feature/amazing-feature`)
+3. ✅ **Commit** your changes (`git commit -m 'Add some amazing feature'`)
+4. 📤 **Push** to the branch (`git push origin feature/amazing-feature`)
+5. 🔀 **Open** a Pull Request
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/mcserversoft-community/mcss-api-js.git
+
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Run tests
+npm test
+```
+
+## 📋 Requirements
+
+- Node.js 16.x or higher
+- MCSS (MC Server Soft) instance with API enabled
+- Valid API key with appropriate permissions
+
+## 🆘 Support
+
+- 📖 **Documentation**: [TypeDoc Documentation](https://mcserversoft-community.github.io/mcss-api-js/)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/mcserversoft-community/mcss-api-js/issues)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+**Made with ❤️ by the MCSS Community**
+
+[Website](https://mcserversoft.com) • [GitHub](https://github.com/mcserversoft-community) • [Documentation](https://mcserversoft-community.github.io/mcss-api-js/)
+
+</div>
